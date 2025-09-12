@@ -3,6 +3,9 @@
 		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
 		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 		<style>
+			* {
+				box-sizing: border-box;
+}
 			h1 {
 				text-align: center;
 			}
@@ -26,18 +29,158 @@
 			body {
 				font-family: 'Inter', sans-serif;
 			    margin: auto;
-				width: 50%; 
-				padding: 25px;
+				width: 80%; 
+			}
+			.column {
+				float: left;
+				width: 50%;
+				padding: 5px;
+			}
+			.column2 {
+				float: left;
+				width: 33.33%;
+				padding: 5px;
+			}
+			.row::after {
+			content: "";
+			clear: both;
+			display: table;
 			}
 
 		</style>
 	</head>
 	<body>
 		<div class="container">
-			<h1>Project 1: Prokudin-Gorskii’s Color Photography</h1>
+			<h1>Project 1: Colorizing the Prokudin-Gorskii Photo Collection</h1>
 			<div style="text-align: center;">Name: Alexander Waldman </div>
 			<div style="text-align: center;"><a href = "../">← Back to Homepage</a></div>
 			
+			<h2>Overview</h2>
+			<p>In this project, I worked to colorize photos from the Prokudin-Gorskii photo collection, a series of images taken in the early 1900s depicting life in the Russian Empire not long before it fell. Each image in the collection is composed of three exposures captured using a blue, green, and red filter respectively. In completing this project, I was able to split each image into its individual color channels and align the exposures with one another to create an accurate RGB image from Prokudin-Gorskii's original black-and-white pictures.</p>
+			<p>I implemented two main methods of alignment, the first being a brute-force method that worked well for small images. To align large images, I used a recursive, image pyramid-based approach that allowed me to quickly align images thousands of pixels wide/tall.</p>
+
+			<h2>Running My Program</h2>
+			<p>In order to run my program, enter the <code>code/</code> directory and type the following: <code>python3 main.py [image file] [alignment method] [scoring metric] [sobel]</code>, where</p> 
+			<ol>
+				<li><b>[image file]</b> is the path to the image you want to align</li>
+				<li><b>[alignment method]</b> is either <code>single</code> (for single-scale alignment) or <code>multi</code> (for multiscale alignment)</li>
+				<li><b>[scoring metric]</b> is either <code>mse</code>, <code>l2</code>, or <code>ncc</code></li>
+				<li><b>[sobel]</b> is optional but if the user provides 'sobel' as an argument, then the program will use sobel edge detection when aligning. <b>I ONLY use this feature in the final part of my writeup where I attempt to improve the alignment of emir.tif. All other images shown rely solely on the image matching metric to align the color channels</b></li>
+			</ol>
+
+
+			<h2>Single-Scale Alignment Method</h2>
+			<p>After splitting the input image into each of its color channels, I wanted to align the red channel with the blue channel and the green channel with the blue channel to ensure everything overlapped properly once I combined everything into an RGB image. I achieved this by simply checking over every possible displacement in a [-15, 15] window and scoring each displacement according to a matching metric. The displacement with the best score determines the alignment.</p>
+			<p>I'll note that all of the images in the photo collection have very uneven, messy borders that lead to incorrect alignment calculations. As a result, I decided to perform all of my alignement calculations on slightly cropped versions (10% on each side) of the images, allowing only interior pixels to influence the score of each displacement.</p>
+			<p>I implemented three different matching metrics: Mean Squared Error (MSE), L2 Norm, and Normalized Cross Correlation (NCC). For MSE and L2 norm, I looked for the displacement with the smallest score while NCC involves looking for the highest scoring displacement. For small images, I found each matching metric resulted in the same alignment. <b>All images below use NCC and completed execution in ~1.1 seconds.</b></p>
+			
+
+			give times for ncc and mse and l2, mse and l2 basically the same exectution times
+			<div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/cathedral_aligned.jpg" alt="cathedral" style="width:100%">
+					<figcaption>cathedral.jpg <br>R: (3, 12) <br>G: (2, 5)</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/monastery_aligned.jpg" alt="monastery" style="width:100%">
+					<figcaption>monastery.jpg <br>R: (2, 3) <br>G: (2, -3)</figcaption>
+
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/tobolsk_aligned.jpg" alt="tobolsk" style="width:100%">
+					<figcaption>tobolsk.jpg <br>R: (3, 6) <br>G: (3, 3)</figcaption>
+				</div>
+			</div>
+
+			<h2>Multiscale Alignment Method</h2>
+			
+			<p><b>all images below use NCC. The .tif files each took ~5 seconds to process while the .jpg files took ~0.25 seconds to process</b></p>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/cathedral_aligned_multi.jpg" alt="cathedral_multiscale" style="width:100%">
+					<figcaption>cathedral_multiscale.jpg <br>R: (3, 12) <br>G: (2, 5)</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/church_aligned.jpg" alt="church" style="width:100%">
+					<figcaption>church.tif <br>R: (-4, 58) <br>G: (4, 25)</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/harvesters_aligned.jpg" alt="harvesters" style="width:100%">
+					<figcaption>harvesters.tif <br>R: (13, 124) <br>G: (16, 59)</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/icon_aligned.jpg" alt="icon" style="width:100%">
+					<figcaption>icon.tif <br>R: (23, 89) <br>G: (17, 41)</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/emir_aligned.jpg" alt="emir" style="width:100%">
+					<figcaption>emir.tif <br>R: (55, 103) <br>G: (24, 49)</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/italil_aligned.jpg" alt="itialil" style="width:100%">
+					<figcaption>italil.tif <br>R: (35, 76) <br>G: (21, 38)</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/lastochikino_aligned.jpg" alt="lastochikino" style="width:100%">
+					<figcaption>lastochikino.tif <br>R: (-8, 75) <br>G: (-2, -2)</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/lugano_aligned.jpg" alt="lugano" style="width:100%">
+					<figcaption>lugano.tif <br>R: (29, 92) <br>G: (-16, 41)</figcaption>
+
+				</div>
+			</div>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/monastery_aligned_multi.jpg" alt="monastery_multiscale" style="width:100%">
+					<figcaption>monastery.jpg <br>R: (2, 3) <br>G: (2, -3)</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/self_portrait_aligned.jpg" alt="self portrait" style="width:100%">
+					<figcaption>self_portrait.tif <br>R: (37, 176) <br>G: (29, 78)</figcaption>
+
+				</div>
+			</div>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/siren_aligned.jpg" alt="siren" style="width:100%">
+					<figcaption>siren.tif <br>R: (-25, 95) <br>G: (-6, 49)</figcaption>
+				</div>
+								<div class="column" style="text-align: center;">
+					<img src="./images/melons_aligned.jpg" alt="melons" style="width:100%">
+					<figcaption>melons.tif <br>R: (13, 178) <br>G: (10, 81)</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/three_generations_aligned.jpg" alt="three generations" style="width:100%">
+					<figcaption>three_generations.tif <br>R: (11, 112) <br>G: (14, 53)</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/tobolsk_aligned_multi.jpg" alt="tobolosk multiscale" style="width:100%">
+					<figcaption>tobolsk.jpg <br>R: (3, 6) <br>G: (3, 3)</figcaption>
+
+				</div>
+			</div>
+
+			<h2>Problem: Improving Alignment For emir.tif With Sobel Edge Detection</h2>
+			<p><b>all images below use NCC as the scoring metric.</b></p>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/emir_aligned.jpg" alt="emir" style="width:100%">
+					<figcaption>emir.tif <br>R: (55, 103) <br>G: (24, 49)</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/emir_aligned_sobel.jpg" alt="emir sobel" style="width:100%">
+					<figcaption>emir.tif (using edge detection) <br>R: (40, 107) <br>G: (24, 49)</figcaption>
+				</div>
+			</div>
 		</div>
 	</body>
 </html>
