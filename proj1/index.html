@@ -47,6 +47,16 @@
 			display: table;
 			}
 
+			table,
+			th,
+			td {
+				border: 1px solid black;
+				border-collapse: collapse;
+			}
+			th,
+			td {
+				padding: 20px;
+			}
 		</style>
 	</head>
 	<body>
@@ -59,23 +69,28 @@
 			<p>In this project, I worked to colorize photos from the Prokudin-Gorskii photo collection, a series of images taken in the early 1900s depicting life in the Russian Empire not long before it fell. Each image in the collection is composed of three exposures captured using a blue, green, and red filter respectively. In completing this project, I was able to split each image into its individual color channels and align the exposures with one another to create an accurate RGB image from Prokudin-Gorskii's original black-and-white pictures.</p>
 			<p>I implemented two main methods of alignment, the first being a brute-force method that worked well for small images. To align large images, I used a recursive, image pyramid-based approach that allowed me to quickly align images thousands of pixels wide/tall.</p>
 
-			<h2>Running My Program</h2>
-			<p>In order to run my program, enter the <code>code/</code> directory and type the following: <code>python3 main.py [image file] [alignment method] [scoring metric] [sobel]</code>, where</p> 
-			<ol>
-				<li><b>[image file]</b> is the path to the image you want to align</li>
-				<li><b>[alignment method]</b> is either <code>single</code> (for single-scale alignment) or <code>multi</code> (for multiscale alignment)</li>
-				<li><b>[scoring metric]</b> is either <code>mse</code>, <code>l2</code>, or <code>ncc</code></li>
-				<li><b>[sobel]</b> is optional but if the user provides 'sobel' as an argument, then the program will use sobel edge detection when aligning. <b>I ONLY use this feature in the final part of my writeup where I attempt to improve the alignment of emir.tif. All other images shown rely solely on the image matching metric to align the color channels</b></li>
-			</ol>
-
-
 			<h2>Single-Scale Alignment Method</h2>
-			<p>After splitting the input image into each of its color channels, I wanted to align the red channel with the blue channel and the green channel with the blue channel to ensure everything overlapped properly once I combined everything into an RGB image. I achieved this by simply checking over every possible displacement in a [-15, 15] window and scoring each displacement according to a matching metric. The displacement with the best score determines the alignment.</p>
-			<p>I'll note that all of the images in the photo collection have very uneven, messy borders that lead to incorrect alignment calculations. As a result, I decided to perform all of my alignement calculations on slightly cropped versions (10% on each side) of the images, allowing only interior pixels to influence the score of each displacement.</p>
-			<p>I implemented three different matching metrics: Mean Squared Error (MSE), L2 Norm, and Normalized Cross Correlation (NCC). For MSE and L2 norm, I looked for the displacement with the smallest score while NCC involves looking for the highest scoring displacement. For small images, I found each matching metric resulted in the same alignment. <b>All images below use NCC and completed execution in ~1.1 seconds.</b></p>
-			
-
-			give times for ncc and mse and l2, mse and l2 basically the same exectution times
+			<p>After splitting the input image into each of its color channels, I wanted to align the red channel with the blue channel and the green channel with the blue channel to ensure everything overlapped properly once I combined everything into an RGB image. I achieved this by simply checking over every possible displacement in a [-15, 15] window and scoring each displacement according to a matching metric. The displacement with the best score determines the alignment. I implemented three different image matching metrics:</p>
+			<table>
+				<tr>
+					<th>Metric</th>
+					<th>Formula</th>
+				</tr>
+				<tr>
+					<td>Mean Squared Error (MSE)</td>
+					<td>\(\frac{1}{mn} * \sum_{i=1}^{m} \sum_{j=1}^{n}(I_1(i, j) - I_2(i, j))^2 \)</td>
+				</tr>
+				<tr>
+					<td>L2 Norm (Euclidean Distance)</td>
+					<td>\(\sqrt{\sum_{i=1}^{m} \sum_{j=1}^{n} [I_1(i,j) - I_2(i,j)]^2} \)</td>
+				</tr>
+				<tr>
+					<td>Normalized Cross Correlation (NCC)</td>
+					<td>\(\frac{I_1}{‖I_1‖} \cdot \frac{I_2}{‖I_2‖} \)</td>
+				</tr>
+			</table>
+			<p>For MSE and L2 norm, I looked for the displacement with the smallest score while using NCC involves looking for the highest scoring displacement. For small images, I found each matching metric resulted in the same alignment. Aligning with NCC takes ~1.1 seconds on my machine while using MSE or L2 takes ~0.3 seconds. <b>The images below use NCC and were generated using this command: <code>python3 main.py [image file] single ncc</code></b></p>
+			<p>I'll note that all of the images in the photo collection have very uneven, messy borders that lead to incorrect alignment calculations. As a result, I decided to perform all of my alignment calculations on slightly cropped versions (10% on each side) of the images, allowing only interior pixels to influence the score of each displacement.</p>
 			<div class="row">
 				<div class="column2" style="text-align: center;">
 					<img src="./images/cathedral_aligned.jpg" alt="cathedral" style="width:100%">
@@ -93,8 +108,9 @@
 			</div>
 
 			<h2>Multiscale Alignment Method</h2>
-			
-			<p><b>all images below use NCC. The .tif files each took ~5 seconds to process while the .jpg files took ~0.25 seconds to process</b></p>
+			<p>While the brute-force, single-scale approach worked well for small images, it took far too long to run on larger .tif files. Additionally, most of the .tif files had displacements much larger than [-15, 15], so the single scale approach was not sufficient. To resolve this issue, I implemented a recursive, image pyramid-based approach to alignment. To construct an image pyramid of an image, I used <code>sk.transform.rescale()</code> with the <code>anti_aliasing = True</code> to repeatedly downscale the image by a factor of 2 and saved each image in an array. For .tif files, I construct an image pyramid with 5 levels, while .jpg files (being much smaller) only need 2 levels. </p>
+			<p>For each level of the pyramid (starting at the lowest resolution), I align the color channels using the same brute-force method as before. After aligning at a given level, I increment the current displacement values with those found by the brute-force method. Then, I double the accumulated displacement before proceeding to the next level of the pyramid. Since the next level of the pyramid has twice the resolution of the current one, we need to double the displacement values to ensure they correspond to the same place in the next image. After I process the full resolution image at level 0, everything is fully aligned. The main reason this method is more efficient is because at each level, I search over a smaller displacement window. This way, I can quickly seach over large regions of a low resolution version of the image and refine the alignment over a very small area by the time I reach level 0. It took a bit of tuning, but I found window sizes of [-8, 8], [-6, 6], [-4, 4], [-2, 2], and [-1, 1] worked well for .tif files and window sizes of [-6, 6] and [-2, 2] were sufficient for .jpg files.</p>
+			<p>Using NCC, the .tif files each took ~5 seconds to process while the .jpg files took ~0.25 seconds to process. With MSE and L2, the runtime for .tif files was ~3 seconds and the runtime for .jpg files was ~0.1 seconds on my machine. <b>All images below use NCC as the matching metric and were generated with the following command: <code>python3 main.py [image file] multi ncc</code></b></p>
 			<div class="row">
 				<div class="column" style="text-align: center;">
 					<img src="./images/cathedral_aligned_multi.jpg" alt="cathedral_multiscale" style="width:100%">
@@ -170,15 +186,41 @@
 			</div>
 
 			<h2>Problem: Improving Alignment For emir.tif With Sobel Edge Detection</h2>
-			<p><b>all images below use NCC as the scoring metric.</b></p>
+			<p>As you may have noticed in the previous section, the alignment of emir.tif is not perfect. I tried to resolve this by using different displancement window sizes and changing how much of the image I cropped before aligning, but nothing worked. This is due to the fact that the brightness of the pixels in the Emir's robe differ wildly between color channels. As a result, all of the image matching metrics fail to line things up perfectly. Even NCC, which is meant to be more robust to differences in pixel values, could not get the job done. I decided to use sobel edge detection to improve alignment. This way, I didn't need to worry about differences in pixel brightness. To do this, I performed the following convolution:</p>
+			<img src="./images/sobel_mat.png" alt="sobel_matrices" style="width:35%; float: left">
+			<p>Where I represents an individual color channel. In code, I executed this convolution using <code>cv2.filter2D()</code>. Here, G<sub>x</sub> and G<sub>y</sub> represent the horizontal and vertical gradients of the image respectively. Finally, I took the square root of the sum of G<sub>x</sub> squared and G<sub>y</sub> squared, leaving me with an image that displays the magnitude of changes in both the x and y directions, higlighting edges within the image since those are the areas of most rapid change. Lastly, I fed each color channel into my multiscale alignment algorithm as before, resulting in much better alignment. <b>The image on the bottom right was generated with the following command: <code>python3 main.py emir.tif multi ncc sobel</code></b></p>
 			<div class="row">
 				<div class="column" style="text-align: center;">
-					<img src="./images/emir_aligned.jpg" alt="emir" style="width:100%">
-					<figcaption>emir.tif <br>R: (55, 103) <br>G: (24, 49)</figcaption>
+					<img src="./images/blue_sobel.jpg" alt="blue_sobel" style="width:100%">
+					<figcaption>Blue color channel with cropping and Sobel filters applied</figcaption>
 				</div>
 				<div class="column" style="text-align: center;">
 					<img src="./images/emir_aligned_sobel.jpg" alt="emir sobel" style="width:100%">
-					<figcaption>emir.tif (using edge detection) <br>R: (40, 107) <br>G: (24, 49)</figcaption>
+					<figcaption>Aligned version emir.tif using edge detection <br>R: (40, 107) <br>G: (24, 49)</figcaption>
+				</div>
+			</div>
+			<p>Looks much better!</p>
+			<h2>Additional Images from the Prokudin-Gorskii Photo Collection</h2>
+			<p>Now that my program is working well, here are some additional images from the Prokudin-Gorskii photo collection that I aligned using my multiscale alignment method with NCC as the matching metric.</div>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/test1_aligned.jpg" alt="Rock wall" style="width:100%">
+					<figcaption>Rock Wall <br>R: (12, 90) <br>G: (7, 37)</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/test2_aligned.jpg" alt="self portrait" style="width:100%">
+					<figcaption>Mountain Village <br>R: (66, 164) <br>G: (38, 76)</figcaption>
+
+				</div>
+			</div>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/test3_aligned.jpg" alt="siren" style="width:100%">
+					<figcaption>River Village <br>R: (64, 115) <br>G: (38, 52)</figcaption>
+				</div>
+								<div class="column" style="text-align: center;">
+					<img src="./images/test4_aligned.jpg" alt="melons" style="width:100%">
+					<figcaption>Log Cabin <br>R: (4, 98) <br>G: (3, 34)</figcaption>
 				</div>
 			</div>
 		</div>
