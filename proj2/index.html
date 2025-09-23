@@ -3,6 +3,9 @@
 		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
 		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 		<style>
+			* {
+				box-sizing: border-box;
+			}
 			h1 {
 				text-align: center;
 			}
@@ -26,10 +29,34 @@
 			body {
 				font-family: 'Inter', sans-serif;
 			    margin: auto;
-				width: 50%; 
-				padding: 25px;
+				width: 80%; 
+			}
+			.column {
+				float: left;
+				width: 50%;
+				padding: 5px;
+			}
+			.column2 {
+				float: left;
+				width: 33.33%;
+				padding: 5px;
+			}
+			.row::after {
+			content: "";
+			clear: both;
+			display: table;
 			}
 
+			table,
+			th,
+			td {
+				border: 1px solid black;
+				border-collapse: collapse;
+			}
+			th,
+			td {
+				padding: 20px;
+			}
 		</style>
 	</head>
 	<body>
@@ -38,6 +65,31 @@
 			<div style="text-align: center;">Name: Alexander Waldman </div>
 			<div style="text-align: center;"><a href = "../">← Back to Homepage</a></div>
 			
+			<h2>Overview</h2>
+			<p>blah blah blah</p>
+
+			<h2>Part 1.1: Convolutions from Scratch!</h2>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/cathedral_aligned.jpg" alt="cathedral" style="width:100%">
+					<figcaption>big_sunhat.jpg </figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/monastery_aligned.jpg" alt="monastery" style="width:100%">
+					<figcaption>big_sunhat.jpg with 9x9 box filter applied</figcaption>
+
+				</div>
+			</div>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/cathedral_aligned.jpg" alt="cathedral" style="width:100%">
+					<figcaption>big_sunhat.jpg with <b>D<sub>x</sub></b> applied</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/monastery_aligned.jpg" alt="monastery" style="width:100%">
+					<figcaption>big_sunhat.jpg with <b>D<sub>y</sub></b> applied</figcaption>
+				</div>
+			</div>
 		</div>
 	</body>
 </html>
