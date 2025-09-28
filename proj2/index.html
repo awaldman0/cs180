@@ -125,22 +125,22 @@ def two_for_loops(img, kernel):
 			<p><b>To generate the images below, run the following command: <code>python main.py 1_1</code>. All results will show up in ./output_images</b></p>
 			<div class="row">
 				<div class="column" style="text-align: center;">
-					<img src="./images/big_sunhat.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/big_sunhat.jpg" alt="big sunhate" style="width:100%">
 					<figcaption>big_sunhat.jpg</figcaption>
 				</div>
 				<div class="column" style="text-align: center;">
-					<img src="./images/big_sunhat_9x9_two.jpg" alt="monastery" style="width:100%">
+					<img src="./images/big_sunhat_9x9_two.jpg" alt="sunhat 9x9" style="width:100%">
 					<figcaption>big_sunhat.jpg with 9x9 box filter applied</figcaption>
 
 				</div>
 			</div>
 			<div class="row">
 				<div class="column" style="text-align: center;">
-					<img src="./images/big_sunhat_dx_two.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/big_sunhat_dx_two.jpg" alt="sunhat dx" style="width:100%">
 					<figcaption>big_sunhat.jpg with <b>D<sub>x</sub></b> applied</figcaption>
 				</div>
 				<div class="column" style="text-align: center;">
-					<img src="./images/big_sunhat_dy_two.jpg" alt="monastery" style="width:100%">
+					<img src="./images/big_sunhat_dy_two.jpg" alt="sunhat dy" style="width:100%">
 					<figcaption>big_sunhat.jpg with <b>D<sub>y</sub></b> applied</figcaption>
 				</div>
 			</div>
@@ -149,22 +149,22 @@ def two_for_loops(img, kernel):
 			<p><b>To generate the images below, run the following command: <code>python main.py 1_2</code>. All results will show up in ./output_images</b></p>
 			<div class="row">
 				<div class="column" style="text-align: center;">
-					<img src="./images/cameraman_dx.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/cameraman_dx.jpg" alt="cameraman dx" style="width:100%">
 					<figcaption>cameraman.png convoled with <b>D<sub>x</sub></b></figcaption>
 				</div>
 				<div class="column" style="text-align: center;">
-					<img src="./images/cameraman_dy.jpg" alt="monastery" style="width:100%">
+					<img src="./images/cameraman_dy.jpg" alt="cameraman dy" style="width:100%">
 					<figcaption>cameraman.png convoled with <b>D<sub>y</sub></b></figcaption>
 
 				</div>
 			</div>
 			<div class="row">
 				<div class="column" style="text-align: center;">
-					<img src="./images/cameraman_grad_mag.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/cameraman_grad_mag.jpg" alt="cameraman gradient magnitude" style="width:100%">
 					<figcaption>Gradient magnitude image</figcaption>
 				</div>
 				<div class="column" style="text-align: center;">
-					<img src="./images/cameraman_edges.jpg" alt="monastery" style="width:100%">
+					<img src="./images/cameraman_edges.jpg" alt="cameraman edges" style="width:100%">
 					<figcaption>Edge image with cutoff threshold 0.305</figcaption>
 				</div>
 			</div>
@@ -173,32 +173,32 @@ def two_for_loops(img, kernel):
 			<p><b>To generate the images for this section, run the following command: python main.py 1_3. All results will show up in ./output_images</b></p>
 			<div class="row">
 				<div class="column" style="text-align: center;">
-					<img src="./images/blurred_grad_mag.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/blurred_grad_mag.jpg" alt="blurred gradient magnitude" style="width:100%">
 					<figcaption>Gradient magnitude image after blurring cameraman.png</figcaption>
 				</div>
 				<div class="column" style="text-align: center;">
-					<img src="./images/blurred_cameraman_edges.jpg" alt="monastery" style="width:100%">
+					<img src="./images/blurred_cameraman_edges.jpg" alt="blurred edge img" style="width:100%">
 					<figcaption>Edge image with cutoff threshold 0.155 after blurring cameraman.png</figcaption>
 				</div>
 			</div>
 			<p>Like before, I had to mess around with a few different threshold values before finding something I was happy with, but this is a huge improvement over the previous result. For starters, edges have much more clarity/continuity, especially in areas like the legs of the tripod. Additionally, we get much more edge information from the buildings in the background without introducing extra noise! We can streamline the process by combining the two convolutions (Gaussian blur, <b>D<sub>x</sub></b>/<b>D<sub>y</sub></b>) into a single kernel, creating a derivative of gaussian filters. The resulting DoG filters are shown below, and still result in the same edge image when applied to cameraman.png</p>
 			<div class="row">
 				<div class="column" style="text-align: center;">
-					<img src="./images/dogx_upscaled.png" alt="cathedral" style="width:100%">
+					<img src="./images/dogx_upscaled.png" alt="DoGx" style="width:100%">
 					<figcaption>DoG_x (upscaled for viewing purposes)</figcaption>
 				</div>
 				<div class="column" style="text-align: center;">
-					<img src="./images/dogy_upscaled.png" alt="monastery" style="width:100%">
+					<img src="./images/dogy_upscaled.png" alt="DoGy" style="width:100%">
 					<figcaption>DoG_y (upscaled for viewing purposes)</figcaption>
 				</div>
 			</div>
 						<div class="row">
 				<div class="column" style="text-align: center;">
-					<img src="./images/dog_grad_mag.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/dog_grad_mag.jpg" alt="DoG gradient magnitude" style="width:100%">
 					<figcaption>Gradient magnitude using DoG filter</figcaption>
 				</div>
 				<div class="column" style="text-align: center;">
-					<img src="./images/dog_cameraman_edges.jpg" alt="monastery" style="width:100%">
+					<img src="./images/dog_cameraman_edges.jpg" alt="DoG cameraman edges" style="width:100%">
 					<figcaption>Edge image using DoG filters</figcaption>
 				</div>
 			</div>
@@ -207,21 +207,21 @@ def two_for_loops(img, kernel):
 			<p><b>To generate the images for this section, run the following command: python main.py 2_1. All results will show up in ./output_images</b></p>
 			<div class="row">
 				<div class="column" style="text-align: center;">
-					<img src="./images/taj_blurred.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/taj_blurred.jpg" alt="taj mahal blurred" style="width:100%">
 					<figcaption>Blurred version of the Taj Mahal</figcaption>
 				</div>
 				<div class="column" style="text-align: center;">
-					<img src="./images/taj_details.jpg" alt="monastery" style="width:100%">
+					<img src="./images/taj_details.jpg" alt="taj mahal details" style="width:100%">
 					<figcaption>Isolated high frequencies</figcaption>
 				</div>
 			</div>
 						<div class="row">
 				<div class="column" style="text-align: center;">
-					<img src="./images/taj_sharp.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/taj_sharp.jpg" alt="taj mahal sharpened" style="width:100%">
 					<figcaption>Sharpened image (&#945; = 5)</figcaption>
 				</div>
 				<div class="column" style="text-align: center;">
-					<img src="./images/taj_extrasharp.jpg" alt="monastery" style="width:100%">
+					<img src="./images/taj_extrasharp.jpg" alt="taj mahal extra sharp" style="width:100%">
 					<figcaption>Sharpened image (&#945; = 10)</figcaption>
 				</div>
 			</div>
@@ -229,46 +229,46 @@ def two_for_loops(img, kernel):
 			<img src="./images/unsharp.png" style="width: 500px;">
 			<div class="row">
 				<div class="column" style="text-align: center;">
-					<img src="./images/taj.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/taj.jpg" alt="taj mahal" style="width:100%">
 					<figcaption>Original image of the Taj Mahal</figcaption>
 				</div>
 				<div class="column" style="text-align: center;">
-					<img src="./images/taj_unsharp.jpg" alt="monastery" style="width:100%">
+					<img src="./images/taj_unsharp.jpg" alt="taj mahal unsharp" style="width:100%">
 					<figcaption>Taj Mahal with unsharp mask applied</figcaption>
 				</div>
 			</div>
 			<div class="row">
 				<div class="column" style="text-align: center;">
-					<img src="./images/deer.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/deer.jpg" alt="deer" style="width:100%">
 					<figcaption>Deer I saw on campus</figcaption>
 				</div>
 				<div class="column" style="text-align: center;">
-					<img src="./images/deer_unsharp.jpg" alt="monastery" style="width:100%">
+					<img src="./images/deer_unsharp.jpg" alt="deer unsharp" style="width:100%">
 					<figcaption>Sharpened image</figcaption>
 				</div>
 			</div>
 			<div class="row">
 				<div class="column" style="text-align: center;">
-					<img src="./images/sandwich.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/sandwich.jpg" alt="sandwich" style="width:100%">
 					<figcaption>Sandwich from a cafe on Shattuck </figcaption>
 				</div>
 				<div class="column" style="text-align: center;">
-					<img src="./images/sandwich_unsharp.jpg" alt="monastery" style="width:100%">
+					<img src="./images/sandwich_unsharp.jpg" alt="sandwich unsharp" style="width:100%">
 					<figcaption>Sharpened image</figcaption>
 				</div>
 			</div>
 			<p>We can also see how well the unsharp mask performs when it comes to recovering detail from a blurred image. I tested this out using a detailed image I took in Golden Gate Park. For this test, I used a gaussian kernel with &#963; = 3 and &#945; = 8. As you can see, the unsharp mask is definetly able to bring back a bit of clarity by accentuating edges between different color values, but we can also see that it was unable to recover the softer edges in the original photo. As a result, it's very difficult to distinguish bewteen individual leaves in the blurred-then-sharpened image. While the unsharp mask does help colors pop a little more compared to the blurred photo, there is still lots of detail lost.</p>
 			<div class="row">
 				<div class="column" style="text-align: center;">
-					<img src="./images/park.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/park.jpg" alt="park" style="width:100%">
 					<figcaption>Original image</figcaption>
 				</div>
 				<div class="column" style="text-align: center;">
-					<img src="./images/park_blurred.jpg" alt="monastery" style="width:100%">
+					<img src="./images/park_blurred.jpg" alt="park blur" style="width:100%">
 					<figcaption>Blurred image</figcaption>
 				</div>
 				<div class="column" style="text-align: center;">
-					<img src="./images/park_blur_unsharp.jpg" alt="monastery" style="width:100%">
+					<img src="./images/park_blur_unsharp.jpg" alt="park blur sharpen" style="width:100%">
 					<figcaption>Blurred then sharpened image</figcaption>
 				</div>
 			</div>
@@ -277,44 +277,44 @@ def two_for_loops(img, kernel):
 			<p><b>To generate the images for this section, run the following command: python main.py 2_2. All results will show up in ./output_images</b></p>
 			<div class="row">
 				<div class="column2" style="text-align: center;">
-					<img src="./images/DerekPicture.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/DerekPicture.jpg" alt="derek" style="width:100%">
 					<figcaption>Derek</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/nutmeg.jpg" alt="monastery" style="width:100%">
+					<img src="./images/nutmeg.jpg" alt="nutmeg" style="width:100%">
 					<figcaption>Nutmeg</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/hybrid_nutmeg_derek.jpg" alt="monastery" style="width:100%">
+					<img src="./images/hybrid_nutmeg_derek.jpg" alt="nutmeg derek hybrid" style="width:100%">
 					<figcaption>Hybrid image</figcaption>
 				</div>
 			</div>
 			
 			<div class="row">
 				<div class="column2" style="text-align: center;">
-					<img src="./images/lightning.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/lightning.jpg" alt="lightning mcqueen" style="width:100%">
 					<figcaption>Lightning McQueen</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/red_car.jpg" alt="monastery" style="width:100%">
+					<img src="./images/red_car.jpg" alt="red car" style="width:100%">
 					<figcaption>Sporty red car</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/hybrid_car_lightning.jpg" alt="monastery" style="width:100%">
+					<img src="./images/hybrid_car_lightning.jpg" alt="hybrid" style="width:100%">
 					<figcaption>Hybrid image</figcaption>
 				</div>
 			</div>
 			<div class="row">
 				<div class="column2" style="text-align: center;">
-					<img src="./images/eiffel.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/eiffel.jpg" alt="eiffel tower" style="width:100%">
 					<figcaption>The Eiffel Tower</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/transamerica.jpg" alt="monastery" style="width:100%">
+					<img src="./images/transamerica.jpg" alt="transamerica pyramid" style="width:100%">
 					<figcaption>The Transamerica Pyramid</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/hybrid_transamerica_eiffel.jpg" alt="monastery" style="width:100%">
+					<img src="./images/hybrid_transamerica_eiffel.jpg" alt="hybrid" style="width:100%">
 					<figcaption>Hybrid image</figcaption>
 				</div>
 			</div>
@@ -322,47 +322,47 @@ def two_for_loops(img, kernel):
 			<p>I think the 3rd hybrid image I made turned out the best, though. For these two images, I found I got the best result by using a gaussian kernal with &#963; = 3 for the low-pass filter and a gaussian kernel with &#963; = 2 for the high-pass filter.</p>
 			<div class="row">
 				<div class="column3" style="text-align: center;">
-					<img src="./images/hank_happy.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/hank_happy.jpg" alt="happy" style="width:100%">
 					<figcaption>Dean Norris happy face </figcaption>
 				</div>
 				<div class="column3" style="text-align: center;">
-					<img src="./images/hank_mad.jpg" alt="monastery" style="width:100%">
+					<img src="./images/hank_mad.jpg" alt="mad" style="width:100%">
 					<figcaption>Dean Norris angry face</figcaption>
 				</div>
 				<div class="column3" style="text-align: center;">
-					<img src="./images/hank_happy_freq.jpg" alt="monastery" style="width:100%">
+					<img src="./images/hank_happy_freq.jpg" alt="happy fourier" style="width:100%">
 					<figcaption>Dean Norris happy face Fourier transform</figcaption>
 				</div>
 				<div class="column3" style="text-align: center;">
-					<img src="./images/hank_mad_freq.jpg" alt="monastery" style="width:100%">
+					<img src="./images/hank_mad_freq.jpg" alt="mad fourier" style="width:100%">
 					<figcaption>Dean Norris angry face Fourier transform</figcaption>
 				</div>
 			</div>
 			<div class="row">
 				<div class="column3" style="text-align: center;">
-					<img src="./images/hybrid_low_freq.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/hybrid_low_freq.jpg" alt="mad low pass" style="width:100%">
 					<figcaption>Low-pass filter</figcaption>
 				</div>
 				<div class="column3" style="text-align: center;">
-					<img src="./images/hybrid_high_freq.jpg" alt="monastery" style="width:100%">
+					<img src="./images/hybrid_high_freq.jpg" alt="happy high pass" style="width:100%">
 					<figcaption>High-pass filter</figcaption>
 				</div>
 				<div class="column3" style="text-align: center;">
-					<img src="./images/low_freq.jpg" alt="monastery" style="width:100%">
+					<img src="./images/low_freq.jpg" alt="mad low freq" style="width:100%">
 					<figcaption>Low-pass filter in frequency space</figcaption>
 				</div>
 				<div class="column3" style="text-align: center;">
-					<img src="./images/high_freq.jpg" alt="monastery" style="width:100%">
+					<img src="./images/high_freq.jpg" alt="happy high freq" style="width:100%">
 					<figcaption>High-pass filter in frequency space</figcaption>
 				</div>
 			</div>
 			<div class="row">
 				<div class="column" style="text-align: center;">
-					<img src="./images/hybrid_mad_happy.jpg" alt="monastery" style="width:100%">
+					<img src="./images/hybrid_mad_happy.jpg" alt="hybrid img" style="width:100%">
 					<figcaption>Final hybrid image</figcaption>
 				</div>
 				<div class="column" style="text-align: center;">
-					<img src="./images/hybrid_freq.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/hybrid_freq.jpg" alt="hybrid freq" style="width:100%">
 					<figcaption>Combined frequencies</figcaption>
 				</div>
 			</div>
@@ -373,57 +373,57 @@ def two_for_loops(img, kernel):
 			<p><b>To generate the images for this section, run the following command: python main.py 2_3. All results will show up in ./output_images</b></p>
 			<div class="row">
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_3_apple_layer_0.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/2_3_apple_layer_0.jpg" alt="apple L0" style="width:100%">
 					<figcaption>Laplacian stack level 0 for apple.jpeg</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_3_orange_layer_0.jpg" alt="monastery" style="width:100%">
+					<img src="./images/2_3_orange_layer_0.jpg" alt="orange L0" style="width:100%">
 					<figcaption>Laplacian stack level 0 for orange.jpeg</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_3_combined_layer_0.jpg" alt="monastery" style="width:100%">
+					<img src="./images/2_3_combined_layer_0.jpg" alt="blended L0" style="width:100%">
 					<figcaption>Combined level 0</figcaption>
 				</div>
 			</div>
 			<div class="row">
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_3_apple_layer_2.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/2_3_apple_layer_2.jpg" alt="apple l2" style="width:100%">
 					<figcaption>Laplacian stack level 2 for apple.jpeg</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_3_orange_layer_2.jpg" alt="monastery" style="width:100%">
+					<img src="./images/2_3_orange_layer_2.jpg" alt="orange l2" style="width:100%">
 					<figcaption>Laplacian stack level 2 for orange.jpeg</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_3_combined_layer_2.jpg" alt="monastery" style="width:100%">
+					<img src="./images/2_3_combined_layer_2.jpg" alt="blend l2" style="width:100%">
 					<figcaption>Combinesd level 2</figcaption>
 				</div>
 			</div>
 			<div class="row">
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_3_apple_layer_4.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/2_3_apple_layer_4.jpg" alt="apple l4" style="width:100%">
 					<figcaption>Laplacian stack level 4 for apple.jpeg</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_3_orange_layer_4.jpg" alt="monastery" style="width:100%">
+					<img src="./images/2_3_orange_layer_4.jpg" alt="orange l4" style="width:100%">
 					<figcaption>Laplacian stack level 4 for orange.jpeg</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_3_combined_layer_4.jpg" alt="monastery" style="width:100%">
+					<img src="./images/2_3_combined_layer_4.jpg" alt="blend l4" style="width:100%">
 					<figcaption>Combined level 4</figcaption>
 				</div>
 			</div>
 			<div class="row">
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_3_blended_apple_layers.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/2_3_blended_apple_layers.jpg" alt="apple" style="width:100%">
 					<figcaption>All layers combined for apple.jpeg</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_3_blended_orange_layers.jpg" alt="monastery" style="width:100%">
+					<img src="./images/2_3_blended_orange_layers.jpg" alt="orange" style="width:100%">
 					<figcaption>All layers combined for orange.jpeg</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_3_blended_apple_orange.jpg" alt="monastery" style="width:100%">
+					<img src="./images/2_3_blended_apple_orange.jpg" alt="blend" style="width:100%">
 					<figcaption>Final blended image</figcaption>
 				</div>
 			</div>
@@ -431,11 +431,11 @@ def two_for_loops(img, kernel):
 			<p>As shown in the previous part, we can combine images by creating Laplacian stacks and using masks to blend them together. In the case of the oraple from above, our masks looked like this:</p>
 			<div class="row">
 				<div class="column" style="text-align: center;">
-					<img src="./images/2_3_apple_mask.jpg" alt="monastery" style="width:100%">
+					<img src="./images/2_3_apple_mask.jpg" alt="apple mask" style="width:100%">
 					<figcaption>Mask for apple.jpeg</figcaption>
 				</div>
 				<div class="column" style="text-align: center;">
-					<img src="./images/2_3_orange_mask.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/2_3_orange_mask.jpg" alt="orange mask" style="width:100%">
 					<figcaption>Mask for orange.jpeg</figcaption>
 				</div>
 			</div>
@@ -445,100 +445,100 @@ def two_for_loops(img, kernel):
 			<p><b>To generate the images for this section, run the following command: python main.py 2_4. All results will show up in ./output_images</b></p>
 			<div class="row">
 				<div class="column2" style="text-align: center;">
-					<img src="./images/apple.jpeg" alt="cathedral" style="width:100%">
+					<img src="./images/apple.jpeg" alt="apple" style="width:100%">
 					<figcaption>apple.jpeg</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/orange.jpeg" alt="monastery" style="width:100%">
+					<img src="./images/orange.jpeg" alt="orange" style="width:100%">
 					<figcaption>orange.jpeg</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_3_blended_apple_orange.jpg" alt="monastery" style="width:100%">
+					<img src="./images/2_3_blended_apple_orange.jpg" alt="blend" style="width:100%">
 					<figcaption>Final blended image</figcaption>
 				</div>
 			</div>
 				<div class="row">
 				<div class="column2" style="text-align: center;">
-					<img src="./images/watch1.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/watch1.jpg" alt="watch1" style="width:100%">
 					<figcaption>watch1.jpg</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/watch2.jpg" alt="monastery" style="width:100%">
+					<img src="./images/watch2.jpg" alt="watch2" style="width:100%">
 					<figcaption>watch2.jpg</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_4_blended_watches.jpg" alt="monastery" style="width:100%">
+					<img src="./images/2_4_blended_watches.jpg" alt="blend" style="width:100%">
 					<figcaption>Final blended image</figcaption>
 				</div>
 			</div>
 						<div class="row">
 				<div class="column2" style="text-align: center;">
-					<img src="./images/steph.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/steph.jpg" alt="steph" style="width:100%">
 					<figcaption>steph.jpg</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/klay.jpg" alt="monastery" style="width:100%">
+					<img src="./images/klay.jpg" alt="klay" style="width:100%">
 					<figcaption>klay.jpg</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_4_blended_steph_klay.jpg" alt="monastery" style="width:100%">
+					<img src="./images/2_4_blended_steph_klay.jpg" alt="blend" style="width:100%">
 					<figcaption>Steph Thompson/Klay Curry</figcaption>
 				</div>
 			</div>
 			<p>In order to create the Steph/Klay mashup, I had to use a highly irregular mask (not just straight lines) that I designed myself in Photoshop. Using the figure from section 2.3 as a guide, we can visualize how the various layers of the Laplacian pyramids for Steph and Klay combine to create the final blend.</p>
 			<div class="row">
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_4_steph_layer_0.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/2_4_steph_layer_0.jpg" alt="steph l0" style="width:100%">
 					<figcaption>Laplacian stack level 0 for steph.jpg</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_4_klay_layer_0.jpg" alt="monastery" style="width:100%">
+					<img src="./images/2_4_klay_layer_0.jpg" alt="klay l0" style="width:100%">
 					<figcaption>Laplacian stack level 0 for klay.jpg</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_4_combined_layer_0.jpg" alt="monastery" style="width:100%">
+					<img src="./images/2_4_combined_layer_0.jpg" alt="blend l0" style="width:100%">
 					<figcaption>Combined level 0</figcaption>
 				</div>
 			</div>
 			<div class="row">
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_4_steph_layer_2.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/2_4_steph_layer_2.jpg" alt="steph l2" style="width:100%">
 					<figcaption>Laplacian stack level 2 for steph.jpg</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_4_klay_layer_2.jpg" alt="monastery" style="width:100%">
+					<img src="./images/2_4_klay_layer_2.jpg" alt="klay l2" style="width:100%">
 					<figcaption>Laplacian stack level 2 for klay.jpg</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_4_combined_layer_2.jpg" alt="monastery" style="width:100%">
+					<img src="./images/2_4_combined_layer_2.jpg" alt="blend l2" style="width:100%">
 					<figcaption>Combinesd level 2</figcaption>
 				</div>
 			</div>
 			<div class="row">
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_4_steph_layer_4.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/2_4_steph_layer_4.jpg" alt="steph l4" style="width:100%">
 					<figcaption>Laplacian stack level 4 for steph.jpg</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_4_klay_layer_4.jpg" alt="monastery" style="width:100%">
+					<img src="./images/2_4_klay_layer_4.jpg" alt="klay l4" style="width:100%">
 					<figcaption>Laplacian stack level 4 for klay.jpg</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_4_combined_layer_4.jpg" alt="monastery" style="width:100%">
+					<img src="./images/2_4_combined_layer_4.jpg" alt="blend l4" style="width:100%">
 					<figcaption>Combined level 4</figcaption>
 				</div>
 			</div>
 			<div class="row">
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_4_blended_steph_layers.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/2_4_blended_steph_layers.jpg" alt="steph" style="width:100%">
 					<figcaption>All layers combined for steph.jpg</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_4_blended_klay_layers.jpg" alt="monastery" style="width:100%">
+					<img src="./images/2_4_blended_klay_layers.jpg" alt="klay" style="width:100%">
 					<figcaption>All layers combined for klay.jpg</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/2_4_blended_steph_klay.jpg" alt="monastery" style="width:100%">
+					<img src="./images/2_4_blended_steph_klay.jpg" alt="blend" style="width:100%">
 					<figcaption>Final blended image</figcaption>
 				</div>
 			</div>
