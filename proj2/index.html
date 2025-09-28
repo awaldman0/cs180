@@ -24,6 +24,9 @@
 			img {
 				display: inline-block;
 				border-radius: 10px;
+				outline-style: solid;
+				outline-width: 1px;
+				outline-color: black;
 			}
 
 			body {
@@ -39,6 +42,12 @@
 			.column2 {
 				float: left;
 				width: 33.33%;
+				padding: 5px;
+			}
+
+			.column3 {
+				float: left;
+				width: 25%;
 				padding: 5px;
 			}
 			.row::after {
@@ -64,32 +73,474 @@
 			<h1>Project 2: Fun With Frequencies</h1>
 			<div style="text-align: center;">Name: Alexander Waldman </div>
 			<div style="text-align: center;"><a href = "../">← Back to Homepage</a></div>
-			
-			<h2>Overview</h2>
-			<p>blah blah blah</p>
 
 			<h2>Part 1.1: Convolutions from Scratch!</h2>
+			<p>In this section, I implemented 2D convolution using two different methods: one with four for-loops and one with two for-loops. Both implementations take in a grayscale image and a kernel, and return the convolved image. I tested my implementations performance with finite difference filters (shown below) as well as a 9x9 box filter that takes the average of all pixels that overlap with the kernel. </p>
+			<img src="./images/diff_op.png" style="width: 300px;">
+			<p>Below are my implementations of convolution with four for-loops and two-for loops. In both cases, we first flip the kernel over the x and y axis (definition of a convolution) and then use <code>np.pad</code> to surround the boundaries of the image with zeros. This makes it so the convolution still works at the edges of the image. In the four for-loops implementation, I loop over every pixel in the image and then loop over every pixel that falls within the convolution kernel centered at the current piel, summing the products of the image and kernel values as I go along. While this works perfectly fine, it can definetly be optimized</p>
+			<pre>
+def four_for_loops(img, kernel):
+    kernel = np.flip(np.flip(kernel, axis=0), axis=1)
+    pad_size = max(kernel.shape) // 2
+    img_height, img_width = img.shape
+    img = np.pad(img, pad_size, mode='constant', constant_values=0)
+    return_img = np.zeros(img.shape)
+    for i in range(pad_size, img_height + pad_size):
+        for j in range(pad_size, img_width + pad_size):
+            sum = 0
+            kernel_x = 0
+            kernel_y = 0
+            for k in range(i - (kernel.shape[0] // 2), i + (kernel.shape[0] // 2) + 1):
+                for l in range(j - (kernel.shape[1] // 2), j + (kernel.shape[1] // 2) + 1):
+                    sum += img[k, l] * kernel[kernel_x, kernel_y]
+                    kernel_y += 1  
+                kernel_y = 0
+                kernel_x += 1
+            return_img[i,j] = sum
+    return return_img[pad_size:-pad_size, pad_size:-pad_size]
+			</pre>
+			<p>In the two for-loops implementation, I again loop over every pixel in the image, but this time I use array slicing to grab the entire area of the image that overlaps with the kernel at once. I then use element-wise multiplication and <code>np.sum</code> to get the same result as before. This way, I'm leveraging vectorized operations in <code>numpy</code> to calculate the convolution much more efficiently than before.</p>
+			<pre>
+def two_for_loops(img, kernel):
+    kernel = np.flip(np.flip(kernel, axis=0), axis=1)
+    pad_size = max(kernel.shape)//2
+    img_height, img_width = img.shape
+    img = np.pad(img, pad_size, mode='constant', constant_values=0)
+
+    lower_i = kernel.shape[0] // 2
+    lower_j = kernel.shape[1] // 2
+    upper_i = kernel.shape[0] // 2 + 1
+    upper_j = kernel.shape[1] // 2 + 1
+
+    return_img = np.zeros(img.shape)
+    for i in range(pad_size, img_height + pad_size):
+        for j in range(pad_size, img_width + pad_size):
+            convolution_area = img[i - lower_i:i + upper_i, j - lower_j:j + upper_j]
+            return_img[i, j] = np.sum(convolution_area * kernel)
+    return return_img[pad_size:-pad_size, pad_size:-pad_size]
+			</pre>
+			<p>I then decided to compare the results of my convolution algorithm to <code>scipy.signal.convolve2d</code>. To ensure all of the conditions were the same across different function calls, I also had <code>scipy.signal.convolve2d</code> pad the boundaries of the image with zeros. I measured the time each method took to apply a 9x9 box filter to big_sunhat.jpg, a 1300x1300 pixel image. I found that the four for-loop method took ~37 seconds, two for-loops took ~6 seconds, and <code>scipy.signal.convolve2d</code> took ~0.2 seconds on my machine. We can see that array slicing and vectorized operations allows for huge increase in speed going from four to two for loops. When it comes to <code>scipy.signal.convolve2d</code>, I imagine it is implemented with highly optimized C/C++ code, so its incredible speed compared to my code is not very surprising. </p>
+			<p><b>Note:</b> Oddly enough, my implementation for two for-loops actually runs slower than my implementation for four for-loops when timing their execution using <b>D<sub>x</sub></b> or <b>D<sub>y</sub></b> as the kernel. At first I was unsure how to handle this, but a TA ran my code on their computer and found that two for-loops ran much faster than for four-loops for <b>D<sub>x</sub></b> and <b>D<sub>y</sub></b>. As a result, I am assuming it boils down to a harware issue. Regardless, I saw the expected speedup when using the 9x9 box filter.</p>
+			<p>Shown below is the original big_sunhat.jpg read in as greyscale in addition to the output of my two for-loop convolution algorithm when run with the 9x9 box filter, <b>D<sub>x</sub></b>, <b>D<sub>y</sub></b>. I found that all three methods of convolution resulted in the exact same images.</p>
+			<p><b>To generate the images below, run the following command: <code>python main.py 1_1</code>. All results will show up in ./output_images</b></p>
 			<div class="row">
 				<div class="column" style="text-align: center;">
-					<img src="./images/cathedral_aligned.jpg" alt="cathedral" style="width:100%">
-					<figcaption>big_sunhat.jpg </figcaption>
+					<img src="./images/big_sunhat.jpg" alt="cathedral" style="width:100%">
+					<figcaption>big_sunhat.jpg</figcaption>
 				</div>
 				<div class="column" style="text-align: center;">
-					<img src="./images/monastery_aligned.jpg" alt="monastery" style="width:100%">
+					<img src="./images/big_sunhat_9x9_two.jpg" alt="monastery" style="width:100%">
 					<figcaption>big_sunhat.jpg with 9x9 box filter applied</figcaption>
 
 				</div>
 			</div>
 			<div class="row">
 				<div class="column" style="text-align: center;">
-					<img src="./images/cathedral_aligned.jpg" alt="cathedral" style="width:100%">
+					<img src="./images/big_sunhat_dx_two.jpg" alt="cathedral" style="width:100%">
 					<figcaption>big_sunhat.jpg with <b>D<sub>x</sub></b> applied</figcaption>
 				</div>
 				<div class="column" style="text-align: center;">
-					<img src="./images/monastery_aligned.jpg" alt="monastery" style="width:100%">
+					<img src="./images/big_sunhat_dy_two.jpg" alt="monastery" style="width:100%">
 					<figcaption>big_sunhat.jpg with <b>D<sub>y</sub></b> applied</figcaption>
 				</div>
 			</div>
-		</div>
+			<h2>Part 1.2: Finite Difference Operator</h2>
+			<p>In this section, I applied <b>D<sub>x</sub></b> and <b>D<sub>y</sub></b> to the cameraman image to find the horizontal and vertical gradients in the image. From there, I could compute the gradient magnitude image by summing the squares of the horizontal and vertical gradients and then taking the sqaure root. As you can see, the gradient magnitude image has a lots high frequency details from the grassy field. This made it difficult to create an edge image that showed all of the real edges while suppressing noise. Overall, I wanted to make the edges of the cameraman/camera as pristine as possible. I played around with various cutoff values but in the end, I sacrificed most of the edges of the buildings in the background as they were too faint to display without introducing a ton of noise.</p>
+			<p><b>To generate the images below, run the following command: <code>python main.py 1_2</code>. All results will show up in ./output_images</b></p>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/cameraman_dx.jpg" alt="cathedral" style="width:100%">
+					<figcaption>cameraman.png convoled with <b>D<sub>x</sub></b></figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/cameraman_dy.jpg" alt="monastery" style="width:100%">
+					<figcaption>cameraman.png convoled with <b>D<sub>y</sub></b></figcaption>
+
+				</div>
+			</div>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/cameraman_grad_mag.jpg" alt="cathedral" style="width:100%">
+					<figcaption>Gradient magnitude image</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/cameraman_edges.jpg" alt="monastery" style="width:100%">
+					<figcaption>Edge image with cutoff threshold 0.305</figcaption>
+				</div>
+			</div>
+			<h2>Derivative of Gaussian (DoG) Filter</h2>
+			<p>To improve my results from part 2, I could try to apply a smoothing operator (Gaussian blur) to the original image before applying <b>D<sub>x</sub></b> and <b>D<sub>y</sub></b>. This way, I might be able to get rid of some of the high frequencies in the picture, ultimately reducing noise in the final edge image. I created my Gaussian filter by calling <code>cv2.getGaussianKernel()</code> with &#963; = 1 and kernel size = 6 * &#963; + 1, to get a 1D Gaussian kernel. From there, I took the outer product of the 1D filter with itself to get a 2D Gaussian kernel. After blurring cameraman.png I followed the same steps as before to produce an edge image.</p>
+			<p><b>To generate the images for this section, run the following command: python main.py 1_3. All results will show up in ./output_images</b></p>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/blurred_grad_mag.jpg" alt="cathedral" style="width:100%">
+					<figcaption>Gradient magnitude image after blurring cameraman.png</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/blurred_cameraman_edges.jpg" alt="monastery" style="width:100%">
+					<figcaption>Edge image with cutoff threshold 0.155 after blurring cameraman.png</figcaption>
+				</div>
+			</div>
+			<p>Like before, I had to mess around with a few different threshold values before finding something I was happy with, but this is a huge improvement over the previous result. For starters, edges have much more clarity/continuity, especially in areas like the legs of the tripod. Additionally, we get much more edge information from the buildings in the background without introducing extra noise! We can streamline the process by combining the two convolutions (Gaussian blur, <b>D<sub>x</sub></b>/<b>D<sub>y</sub></b>) into a single kernel, creating a derivative of gaussian filters. The resulting DoG filters are shown below, and still result in the same edge image when applied to cameraman.png</p>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/dogx_upscaled.png" alt="cathedral" style="width:100%">
+					<figcaption>DoG_x (upscaled for viewing purposes)</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/dogy_upscaled.png" alt="monastery" style="width:100%">
+					<figcaption>DoG_y (upscaled for viewing purposes)</figcaption>
+				</div>
+			</div>
+						<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/dog_grad_mag.jpg" alt="cathedral" style="width:100%">
+					<figcaption>Gradient magnitude using DoG filter</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/dog_cameraman_edges.jpg" alt="monastery" style="width:100%">
+					<figcaption>Edge image using DoG filters</figcaption>
+				</div>
+			</div>
+			<h2>Image "Sharpening"</h2>
+			<p>To sharpen an image, we can first subtract a blurred version of the image from the original to isolate the details/high frequencies of the image. From there, we can add the details (scaled by a factor &#945;) back into the original to produce a sharpened version of the image. The value of &#945; determines the how "sharp" the resulting image is. The larger the value of &#945; is, the more prominent the details of an image will be after adding them back into the original. For this part, I used a gaussian filter with &#963; = 1.</p>
+			<p><b>To generate the images for this section, run the following command: python main.py 2_1. All results will show up in ./output_images</b></p>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/taj_blurred.jpg" alt="cathedral" style="width:100%">
+					<figcaption>Blurred version of the Taj Mahal</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/taj_details.jpg" alt="monastery" style="width:100%">
+					<figcaption>Isolated high frequencies</figcaption>
+				</div>
+			</div>
+						<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/taj_sharp.jpg" alt="cathedral" style="width:100%">
+					<figcaption>Sharpened image (&#945; = 5)</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/taj_extrasharp.jpg" alt="monastery" style="width:100%">
+					<figcaption>Sharpened image (&#945; = 10)</figcaption>
+				</div>
+			</div>
+			<p>Using the calculations below, we can actually combine the blurring, detail extraction, and detail addition steps into a single convolution using an "unsharp mask" filter. This allows us to quickly produce a sharpened version of any input image. All of the images below use a gaussian kernel with &#963; = 1 and &#945; = 5</p>
+			<img src="./images/unsharp.png" style="width: 500px;">
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/taj.jpg" alt="cathedral" style="width:100%">
+					<figcaption>Original image of the Taj Mahal</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/taj_unsharp.jpg" alt="monastery" style="width:100%">
+					<figcaption>Taj Mahal with unsharp mask applied</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/deer.jpg" alt="cathedral" style="width:100%">
+					<figcaption>Deer I saw on campus</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/deer_unsharp.jpg" alt="monastery" style="width:100%">
+					<figcaption>Sharpened image</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/sandwich.jpg" alt="cathedral" style="width:100%">
+					<figcaption>Sandwich from a cafe on Shattuck </figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/sandwich_unsharp.jpg" alt="monastery" style="width:100%">
+					<figcaption>Sharpened image</figcaption>
+				</div>
+			</div>
+			<p>We can also see how well the unsharp mask performs when it comes to recovering detail from a blurred image. I tested this out using a detailed image I took in Golden Gate Park. For this test, I used a gaussian kernel with &#963; = 3 and &#945; = 8. As you can see, the unsharp mask is definetly able to bring back a bit of clarity by accentuating edges between different color values, but we can also see that it was unable to recover the softer edges in the original photo. As a result, it's very difficult to distinguish bewteen individual leaves in the blurred-then-sharpened image. While the unsharp mask does help colors pop a little more compared to the blurred photo, there is still lots of detail lost.</p>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/park.jpg" alt="cathedral" style="width:100%">
+					<figcaption>Original image</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/park_blurred.jpg" alt="monastery" style="width:100%">
+					<figcaption>Blurred image</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/park_blur_unsharp.jpg" alt="monastery" style="width:100%">
+					<figcaption>Blurred then sharpened image</figcaption>
+				</div>
+			</div>
+			<h2>Hybrid Images</h2>
+			<p>In this section, I created hybrid images by aligning an blending very different pictures. Hybrid images are created by combining the low frequencies of one image with the high frequencies of another. To do this, we can first blur one image to isolate its low frequencies, and then subtract a blurred version of the second image from itself to isolate its high frequencies (like in Part 2.1). From there, we can simply add the two resulting images together to create a hybrid image. We end up with an image that looks like one thing from close up but another from far away. Using the provided alignment code and the sample images, I created a hybrid image using the sample pictures and then went on to create a few of my own!</p>
+			<p><b>To generate the images for this section, run the following command: python main.py 2_2. All results will show up in ./output_images</b></p>
+			<div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/DerekPicture.jpg" alt="cathedral" style="width:100%">
+					<figcaption>Derek</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/nutmeg.jpg" alt="monastery" style="width:100%">
+					<figcaption>Nutmeg</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/hybrid_nutmeg_derek.jpg" alt="monastery" style="width:100%">
+					<figcaption>Hybrid image</figcaption>
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/lightning.jpg" alt="cathedral" style="width:100%">
+					<figcaption>Lightning McQueen</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/red_car.jpg" alt="monastery" style="width:100%">
+					<figcaption>Sporty red car</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/hybrid_car_lightning.jpg" alt="monastery" style="width:100%">
+					<figcaption>Hybrid image</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/eiffel.jpg" alt="cathedral" style="width:100%">
+					<figcaption>The Eiffel Tower</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/transamerica.jpg" alt="monastery" style="width:100%">
+					<figcaption>The Transamerica Pyramid</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/hybrid_transamerica_eiffel.jpg" alt="monastery" style="width:100%">
+					<figcaption>Hybrid image</figcaption>
+				</div>
+			</div>
+
+			<p>I think the 3rd hybrid image I made turned out the best, though. For these two images, I found I got the best result by using a gaussian kernal with &#963; = 3 for the low-pass filter and a gaussian kernel with &#963; = 2 for the high-pass filter.</p>
+			<div class="row">
+				<div class="column3" style="text-align: center;">
+					<img src="./images/hank_happy.jpg" alt="cathedral" style="width:100%">
+					<figcaption>Dean Norris happy face </figcaption>
+				</div>
+				<div class="column3" style="text-align: center;">
+					<img src="./images/hank_mad.jpg" alt="monastery" style="width:100%">
+					<figcaption>Dean Norris angry face</figcaption>
+				</div>
+				<div class="column3" style="text-align: center;">
+					<img src="./images/hank_happy_freq.jpg" alt="monastery" style="width:100%">
+					<figcaption>Dean Norris happy face Fourier transform</figcaption>
+				</div>
+				<div class="column3" style="text-align: center;">
+					<img src="./images/hank_mad_freq.jpg" alt="monastery" style="width:100%">
+					<figcaption>Dean Norris angry face Fourier transform</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column3" style="text-align: center;">
+					<img src="./images/hybrid_low_freq.jpg" alt="cathedral" style="width:100%">
+					<figcaption>Low-pass filter</figcaption>
+				</div>
+				<div class="column3" style="text-align: center;">
+					<img src="./images/hybrid_high_freq.jpg" alt="monastery" style="width:100%">
+					<figcaption>High-pass filter</figcaption>
+				</div>
+				<div class="column3" style="text-align: center;">
+					<img src="./images/low_freq.jpg" alt="monastery" style="width:100%">
+					<figcaption>Low-pass filter in frequency space</figcaption>
+				</div>
+				<div class="column3" style="text-align: center;">
+					<img src="./images/high_freq.jpg" alt="monastery" style="width:100%">
+					<figcaption>High-pass filter in frequency space</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/hybrid_mad_happy.jpg" alt="monastery" style="width:100%">
+					<figcaption>Final hybrid image</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/hybrid_freq.jpg" alt="cathedral" style="width:100%">
+					<figcaption>Combined frequencies</figcaption>
+				</div>
+			</div>
+
+			<h2>Gaussian and Laplacian Stacks</h2>
+			<p>Next, I implemented Gaussian and Laplacian Stacks for image blending. Using my experience from project 1 building Gaussian Pyramids, I found the process pretty intuitive. The main difference between a stack and a pyramid is that a building a stack does not involve downsampling the image. For a Gaussian stack, you can blur the original image with an increasingly large kernel to make each layer. To make an image into a Laplacian stack, you first construct a Gaussian stack with the image. From there, each level of the Laplacian stack is the difference bewteen level <i>i</i> and level <i>i+1</i> of the Gaussian stack. For the final level of the Laplacian stack, you can simply copy the last level of the Gaussian stack, as that represents the leftover low frequencies. Laplacian stacks are useful because each layer contains a specific band of frequencies, and you can simply add all the layers together to reconstruct the original image. Using the sample images provided, I constructed a 5-level Laplacian stack for each image, which allowed me to create the following images</p>
+			<p>Another important idea behind image blending applying masks to the images you want to combine (which I do for the images below). I will explain my implemetation/process for using masks in the next section.</p>
+			<p><b>To generate the images for this section, run the following command: python main.py 2_3. All results will show up in ./output_images</b></p>
+			<div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_3_apple_layer_0.jpg" alt="cathedral" style="width:100%">
+					<figcaption>Laplacian stack level 0 for apple.jpeg</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_3_orange_layer_0.jpg" alt="monastery" style="width:100%">
+					<figcaption>Laplacian stack level 0 for orange.jpeg</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_3_combined_layer_0.jpg" alt="monastery" style="width:100%">
+					<figcaption>Combined level 0</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_3_apple_layer_2.jpg" alt="cathedral" style="width:100%">
+					<figcaption>Laplacian stack level 2 for apple.jpeg</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_3_orange_layer_2.jpg" alt="monastery" style="width:100%">
+					<figcaption>Laplacian stack level 2 for orange.jpeg</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_3_combined_layer_2.jpg" alt="monastery" style="width:100%">
+					<figcaption>Combinesd level 2</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_3_apple_layer_4.jpg" alt="cathedral" style="width:100%">
+					<figcaption>Laplacian stack level 4 for apple.jpeg</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_3_orange_layer_4.jpg" alt="monastery" style="width:100%">
+					<figcaption>Laplacian stack level 4 for orange.jpeg</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_3_combined_layer_4.jpg" alt="monastery" style="width:100%">
+					<figcaption>Combined level 4</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_3_blended_apple_layers.jpg" alt="cathedral" style="width:100%">
+					<figcaption>All layers combined for apple.jpeg</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_3_blended_orange_layers.jpg" alt="monastery" style="width:100%">
+					<figcaption>All layers combined for orange.jpeg</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_3_blended_apple_orange.jpg" alt="monastery" style="width:100%">
+					<figcaption>Final blended image</figcaption>
+				</div>
+			</div>
+			<h2>Multiresolution Blending (a.k.a. the oraple!)</h2>
+			<p>As shown in the previous part, we can combine images by creating Laplacian stacks and using masks to blend them together. In the case of the oraple from above, our masks looked like this:</p>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/2_3_apple_mask.jpg" alt="monastery" style="width:100%">
+					<figcaption>Mask for apple.jpeg</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/2_3_orange_mask.jpg" alt="cathedral" style="width:100%">
+					<figcaption>Mask for orange.jpeg</figcaption>
+				</div>
+			</div>
+			<p>To blend two images together, we create Laplacian stacks for each image and a Gaussian stack for each <b>mask</b>. For each level <i>i</i> of the stacks, we can then compute the blended level as:</p>
+			<p>LaplacianStack1[i] * GaussianStack1[i] + LaplacianStack2[i] * GaussianStack2[i]</p>
+			<p>From there, we can simply sum all the blended levels together to get the final blended image. I tried this process out with a few different pairs of images and masks, and the results are visible below.</p>
+			<p><b>To generate the images for this section, run the following command: python main.py 2_4. All results will show up in ./output_images</b></p>
+			<div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/apple.jpeg" alt="cathedral" style="width:100%">
+					<figcaption>apple.jpeg</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/orange.jpeg" alt="monastery" style="width:100%">
+					<figcaption>orange.jpeg</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_3_blended_apple_orange.jpg" alt="monastery" style="width:100%">
+					<figcaption>Final blended image</figcaption>
+				</div>
+			</div>
+				<div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/watch1.jpg" alt="cathedral" style="width:100%">
+					<figcaption>watch1.jpg</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/watch2.jpg" alt="monastery" style="width:100%">
+					<figcaption>watch2.jpg</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_4_blended_watches.jpg" alt="monastery" style="width:100%">
+					<figcaption>Final blended image</figcaption>
+				</div>
+			</div>
+						<div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/steph.jpg" alt="cathedral" style="width:100%">
+					<figcaption>steph.jpg</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/klay.jpg" alt="monastery" style="width:100%">
+					<figcaption>klay.jpg</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_4_blended_steph_klay.jpg" alt="monastery" style="width:100%">
+					<figcaption>Steph Thompson/Klay Curry</figcaption>
+				</div>
+			</div>
+			<p>In order to create the Steph/Klay mashup, I had to use a highly irregular mask (not just straight lines) that I designed myself in Photoshop. Using the figure from section 2.3 as a guide, we can visualize how the various layers of the Laplacian pyramids for Steph and Klay combine to create the final blend.</p>
+			<div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_4_steph_layer_0.jpg" alt="cathedral" style="width:100%">
+					<figcaption>Laplacian stack level 0 for steph.jpg</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_4_klay_layer_0.jpg" alt="monastery" style="width:100%">
+					<figcaption>Laplacian stack level 0 for klay.jpg</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_4_combined_layer_0.jpg" alt="monastery" style="width:100%">
+					<figcaption>Combined level 0</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_4_steph_layer_2.jpg" alt="cathedral" style="width:100%">
+					<figcaption>Laplacian stack level 2 for steph.jpg</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_4_klay_layer_2.jpg" alt="monastery" style="width:100%">
+					<figcaption>Laplacian stack level 2 for klay.jpg</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_4_combined_layer_2.jpg" alt="monastery" style="width:100%">
+					<figcaption>Combinesd level 2</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_4_steph_layer_4.jpg" alt="cathedral" style="width:100%">
+					<figcaption>Laplacian stack level 4 for steph.jpg</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_4_klay_layer_4.jpg" alt="monastery" style="width:100%">
+					<figcaption>Laplacian stack level 4 for klay.jpg</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_4_combined_layer_4.jpg" alt="monastery" style="width:100%">
+					<figcaption>Combined level 4</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_4_blended_steph_layers.jpg" alt="cathedral" style="width:100%">
+					<figcaption>All layers combined for steph.jpg</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_4_blended_klay_layers.jpg" alt="monastery" style="width:100%">
+					<figcaption>All layers combined for klay.jpg</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/2_4_blended_steph_klay.jpg" alt="monastery" style="width:100%">
+					<figcaption>Final blended image</figcaption>
+				</div>
+			</div>
 	</body>
 </html>
