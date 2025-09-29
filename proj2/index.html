@@ -74,6 +74,8 @@
 			<div style="text-align: center;">Name: Alexander Waldman </div>
 			<div style="text-align: center;"><a href = "../">← Back to Homepage</a></div>
 
+			<h2>Overview</h2>
+			<p>In this project, I implemented several image processing techniques using convolution. In Part 1, I built 2 convolution algorithms from scratch and evaluated their performance against each other. I then created edge images using finite difference operators and learned how applying a derivate of gaussian filters can improve edge detection. In Part 2, I applied convolution to sharpen images and create hybrid images. Finally, I implemented Gaussian and Laplacian stacks to blend two images together seamlessly. The most important thing I've learned from this project is that a convolution can radically alter an image despite the relative simplicity of the operation. Additionally, It was incredibly rewarding to use the things I learned completing Part 2.3 to make my own blended images and I'd love to explore more advanced image blending/matching techniques in the future. </p>
 			<h2>Part 1.1: Convolutions from Scratch!</h2>
 			<p>In this section, I implemented 2D convolution using two different methods: one with four for-loops and one with two for-loops. Both implementations take in a grayscale image and a kernel, and return the convolved image. I tested my implementations performance with finite difference filters (shown below) as well as a 9x9 box filter that takes the average of all pixels that overlap with the kernel. </p>
 			<img src="./images/diff_op.png" style="width: 300px;">
@@ -168,7 +170,7 @@ def two_for_loops(img, kernel):
 					<figcaption>Edge image with cutoff threshold 0.305</figcaption>
 				</div>
 			</div>
-			<h2>Derivative of Gaussian (DoG) Filter</h2>
+			<h2>Part 1.3: Derivative of Gaussian (DoG) Filter</h2>
 			<p>To improve my results from part 2, I could try to apply a smoothing operator (Gaussian blur) to the original image before applying <b>D<sub>x</sub></b> and <b>D<sub>y</sub></b>. This way, I might be able to get rid of some of the high frequencies in the picture, ultimately reducing noise in the final edge image. I created my Gaussian filter by calling <code>cv2.getGaussianKernel()</code> with &#963; = 1 and kernel size = 6 * &#963; + 1, to get a 1D Gaussian kernel. From there, I took the outer product of the 1D filter with itself to get a 2D Gaussian kernel. After blurring cameraman.png I followed the same steps as before to produce an edge image.</p>
 			<p><b>To generate the images for this section, run the following command: python main.py 1_3. All results will show up in ./output_images</b></p>
 			<div class="row">
@@ -202,7 +204,7 @@ def two_for_loops(img, kernel):
 					<figcaption>Edge image using DoG filters</figcaption>
 				</div>
 			</div>
-			<h2>Image "Sharpening"</h2>
+			<h2>Part 2.1: Image "Sharpening"</h2>
 			<p>To sharpen an image, we can first subtract a blurred version of the image from the original to isolate the details/high frequencies of the image. From there, we can add the details (scaled by a factor &#945;) back into the original to produce a sharpened version of the image. The value of &#945; determines the how "sharp" the resulting image is. The larger the value of &#945; is, the more prominent the details of an image will be after adding them back into the original. For this part, I used a gaussian filter with &#963; = 1.</p>
 			<p><b>To generate the images for this section, run the following command: python main.py 2_1. All results will show up in ./output_images</b></p>
 			<div class="row">
@@ -272,7 +274,7 @@ def two_for_loops(img, kernel):
 					<figcaption>Blurred then sharpened image</figcaption>
 				</div>
 			</div>
-			<h2>Hybrid Images</h2>
+			<h2>Part 2.2: Hybrid Images</h2>
 			<p>In this section, I created hybrid images by aligning an blending very different pictures. Hybrid images are created by combining the low frequencies of one image with the high frequencies of another. To do this, we can first blur one image to isolate its low frequencies, and then subtract a blurred version of the second image from itself to isolate its high frequencies (like in Part 2.1). From there, we can simply add the two resulting images together to create a hybrid image. We end up with an image that looks like one thing from close up but another from far away. Using the provided alignment code and the sample images, I created a hybrid image using the sample pictures and then went on to create a few of my own!</p>
 			<p><b>To generate the images for this section, run the following command: python main.py 2_2. All results will show up in ./output_images</b></p>
 			<div class="row">
@@ -367,8 +369,8 @@ def two_for_loops(img, kernel):
 				</div>
 			</div>
 
-			<h2>Gaussian and Laplacian Stacks</h2>
-			<p>Next, I implemented Gaussian and Laplacian Stacks for image blending. Using my experience from project 1 building Gaussian Pyramids, I found the process pretty intuitive. The main difference between a stack and a pyramid is that a building a stack does not involve downsampling the image. For a Gaussian stack, you can blur the original image with an increasingly large kernel to make each layer. To make an image into a Laplacian stack, you first construct a Gaussian stack with the image. From there, each level of the Laplacian stack is the difference bewteen level <i>i</i> and level <i>i+1</i> of the Gaussian stack. For the final level of the Laplacian stack, you can simply copy the last level of the Gaussian stack, as that represents the leftover low frequencies. Laplacian stacks are useful because each layer contains a specific band of frequencies, and you can simply add all the layers together to reconstruct the original image. Using the sample images provided, I constructed a 5-level Laplacian stack for each image, which allowed me to create the following images</p>
+			<h2>Part2.3: Gaussian and Laplacian Stacks</h2>
+			<p>Next, I implemented Gaussian and Laplacian Stacks for image blending. Using my experience from project 1 building Gaussian Pyramids, I found the process pretty intuitive. The main difference between a stack and a pyramid is that a building a stack does not involve downsampling the image. For a Gaussian stack, you can blur the original image with an increasingly large kernel to make each layer. To make an image into a Laplacian stack, you first construct a Gaussian stack with the image. From there, each level of the Laplacian stack is the difference bewteen level <i>i</i> and level <i>i+1</i> of the Gaussian stack. For the final level of the Laplacian stack, you can simply copy the last level of the Gaussian stack, as that represents the leftover low frequencies. Laplacian stacks are useful because each layer contains a specific band of frequencies, and you can simply add all the layers together to reconstruct the original image. Using the sample images provided, I constructed a 5-level Laplacian stack for each image, which allowed me to create the following images.</p>
 			<p>Another important idea behind image blending applying masks to the images you want to combine (which I do for the images below). I will explain my implemetation/process for using masks in the next section.</p>
 			<p><b>To generate the images for this section, run the following command: python main.py 2_3. All results will show up in ./output_images</b></p>
 			<div class="row">
@@ -427,7 +429,7 @@ def two_for_loops(img, kernel):
 					<figcaption>Final blended image</figcaption>
 				</div>
 			</div>
-			<h2>Multiresolution Blending (a.k.a. the oraple!)</h2>
+			<h2>Part 2.4: Multiresolution Blending (a.k.a. the oraple!)</h2>
 			<p>As shown in the previous part, we can combine images by creating Laplacian stacks and using masks to blend them together. In the case of the oraple from above, our masks looked like this:</p>
 			<div class="row">
 				<div class="column" style="text-align: center;">
