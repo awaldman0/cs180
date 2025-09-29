@@ -369,7 +369,7 @@ def two_for_loops(img, kernel):
 				</div>
 			</div>
 
-			<h2>Part2.3: Gaussian and Laplacian Stacks</h2>
+			<h2>Part 2.3: Gaussian and Laplacian Stacks</h2>
 			<p>Next, I implemented Gaussian and Laplacian Stacks for image blending. Using my experience from project 1 building Gaussian Pyramids, I found the process pretty intuitive. The main difference between a stack and a pyramid is that a building a stack does not involve downsampling the image. For a Gaussian stack, you can blur the original image with an increasingly large kernel to make each layer. To make an image into a Laplacian stack, you first construct a Gaussian stack with the image. From there, each level of the Laplacian stack is the difference bewteen level <i>i</i> and level <i>i+1</i> of the Gaussian stack. For the final level of the Laplacian stack, you can simply copy the last level of the Gaussian stack, as that represents the leftover low frequencies. Laplacian stacks are useful because each layer contains a specific band of frequencies, and you can simply add all the layers together to reconstruct the original image. Using the sample images provided, I constructed a 5-level Laplacian stack for each image, which allowed me to create the following images.</p>
 			<p>Another important idea behind image blending applying masks to the images you want to combine (which I do for the images below). I will explain my implemetation/process for using masks in the next section.</p>
 			<p><b>To generate the images for this section, run the following command: python main.py 2_3. All results will show up in ./output_images</b></p>
