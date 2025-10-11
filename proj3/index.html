@@ -23,10 +23,7 @@
 
 			img {
 				display: inline-block;
-				border-radius: 10px;
-				outline-style: solid;
-				outline-width: 1px;
-				outline-color: black;
+				border-radius: 5px;
 			}
 
 			body {
@@ -44,10 +41,14 @@
 				width: 33.33%;
 				padding: 5px;
 			}
-
 			.column3 {
 				float: left;
 				width: 25%;
+				padding: 5px;
+			}
+			.column4 {
+				float: center;
+				width: 100%;
 				padding: 5px;
 			}
 			.row::after {
@@ -94,15 +95,15 @@
 			</div>
 			<div class="row">
 				<div class="column2" style="text-align: center;">
-					<img src="./images/campanile1.jpg" alt="campanile1" style="width:100%">
+					<img src="./images/haviland1.jpg" alt="campanile1" style="width:100%">
 					<figcaption></figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/campanile2.jpg" alt="campanile2" style="width:100%">
-					<figcaption>The Campanile</figcaption>
+					<img src="./images/haviland2.jpg" alt="campanile2" style="width:100%">
+					<figcaption>Haviland Hall</figcaption>
 				</div>
 				<div class="column2" style="text-align: center;">
-					<img src="./images/campanile3.jpg" alt="campanile3" style="width:100%">
+					<img src="./images/haviland3.jpg" alt="campanile3" style="width:100%">
 					<figcaption></figcaption>
 				</div>
 			</div>
@@ -121,10 +122,157 @@
 				</div>
 			</div>
 			<h2>A.2: Recover Homographies</h2>
-			<p>In order to warp my images into alignment, I first needed to solve for the transformation matrix that allows us to map one perspective projection to another. This matrix is called the homography.</p>
-			<h2>A.3: Warp the Images</h2>
+			<p>In order to warp my images into alignment, I first needed to solve for the transformation matrix that allows us to map one perspective projection to another. This 3x3 matrix is called the homography. To solve for this matrix, you can set up a system of equations to map points from one image to another, using least squares estimation to derive the homography:</p>
+			<ol>
+				<li>Identify points <code>(x, y)</code> in the first image that correspond with points <code>(u, v)</code> in the second image. In the second part of the project, this part will be done automatically. For now, I used this <a href="https://cal-cs180.github.io/fa23/hw/proj3/tool.html">tool</a> to identify correspondences.</li>
+				<li>For each pair of points <code>(x<sub>i</sub>, y<sub>i</sub>)</code> and <code>(u<sub>i</sub>, v<sub>i</sub>)</code>, we have this relation where h<sub>1</sub>, ..., h<sub>8</sub> are entries in the homography matrix.</li>
+				<img src="./images/corr.png" style="width: 400px">
+				<li>From here, we can use algebra to arrive at the equations h<sub>1</sub>x+h<sub>2</sub>y+h<sub>3</sub>−uh<sub>7</sub>x−uh<sub>8</sub>y=u and h<sub>4</sub>x+h<sub>5</sub>y+h<sub>6</sub>−vh<sub>7</sub>x−vh<sub>8</sub>y=v. In matrix form, this looks like</li>
+				<img src="./images/qwert.png" style="width: 400px">
+				<li>For each additional correspondence, you can extend the matrices like this.</li>
+				<img src="./images/fullmat.png" style="width: 400px">
+			</ol>
+			<p>Since the homography matrix has 8 unknowns (the 9th value is always 1), we need at least 8 equations to reach a unique solution. This means that we need at least 4 correspondences to map one image onto another. In practice, using just 4 points can be very unstable, as being off by a few pixels can lead to large errors. For the images below (and the rest of the mosaic images), I used about 20 correspondences.</p>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/wheeler1_dots.png" alt="wheeler1 dots" style="width:100%">
+					<figcaption>Points in left image</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/wheeler2_dots1.png" alt="wheeler2 dots" style="width:100%">
+					<figcaption>Corresponding points in center image</figcaption>
+				</div>
+			</div>
+			<img src="./images/wheeler12_homog.png" style="width: 500px;">
+			<figcaption>Recovered homography</figcaption>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/wheeler3_dots.png" alt="wheeler3 dots" style="width:100%">
+					<figcaption>Points in right image</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/wheeler2_dots3.png" alt="wheeler2 dots" style="width:100%">
+					<figcaption>Corresponding points in center image</figcaption>
+				</div>
+			</div>
+			<img src="./images/wheeler32_homog.png" style="width: 500px;">
+			<figcaption>Recovered homography</figcaption>
 
+			<h2>A.3: Warp the Images</h2>
+			<p>Now that we have the ability to recover homographies we can begin warping images onto one another. One common use case for homographies is image rectification, often used when taking pictures of important documents. I decided to demonstrate my ability to rectify images using a couple poster that I have hanging in my apartment. Using the pixel correspondence tool I mentioned earlier, I mapped the corners of each poster to the corners of the image so that the homography would result in a totally flat picture of the poster. Having a correct homography is only one part of the process, though. Since pixels in the input image are unlikely to align perfectly with pixels in the output image, we need some kind of interpolation technique to ensure the result doesn't have holes. I implemented two types of interpolation, nearest neighbor and bilinear. Given a pixel location in the output image, nearest neighbor assigns its value to the closest corresponding pixel from the input image while bilinear interpolation involves finding a weighted average of the four closest pixels in the input. Despite its relative slowness, I preferred using bilinear interpolation when producing images for this assignment.</p> 
+			<div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/poster2.jpg" alt="poster2" style="width:100%;height: 100%">
+					<figcaption>Original</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/rectified2_nearest.png" alt="poster2_nn" style="width:100%;">
+					<figcaption>Rectified with nearest neighbor interpolation</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/rectified2_bilinear.png" alt="poster2_bil" style="width:100%">
+					<figcaption>Rectified with bilinear interpolation</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/poster1.jpg" alt="poster1" style="width:100%">
+					<figcaption>Original</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/rectified1_nearest.png" alt="poster1_nn" style="width:100%">
+					<figcaption>Rectified with nearest neighbor interpolation</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/rectified1_bilinear.png" alt="poster1_bil" style="width:100%">
+					<figcaption>Rectified with bilinear interpolation</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/ball_nn.png" alt="nearest neighbor" style="width:100%">
+					<figcaption>Nearest neighbor interpolation result</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/ball_bi.png" alt="bilinear" style="width:100%">
+					<figcaption>Bilinear interpolation result</figcaption>
+				</div>
+			</div>
+			<p>Rectification works! We can also see the difference between using nearest neighbor and bilinear interpolation on an image. Up close, images that used nearest neighbor definetly look more pixelated than those with bilinear interpolation. The averaging of values in bilinear interpolation allows for a much smoother output, but this comes at the cost of time. Bilinear interpolation involves many more mathethatical operations compared to the nearest neighbor approach, which simply rounds values to the nearest integer. </p>
 			<h2>A.4: Blend the Images into a Mosaic</h2>
+			<p>Finally, we can begin producing image mosaics! My process for creating image mosaics works as follows:</p>
+			<ol>
+				<li>Using manually selcted correspondences, compute the homography between the left image and the center image as well as the homography between the right image and the center image.</li>
+				<li>Warp both the left image and the right image onto the center image.</li>
+				<li>Pipe the four corners of the left image and the right image through their respective H transforms to determine the dimensions of the final mosaic.</li>
+				<li>Place the center image and each warped image on their own canvas with the dimensions determined in step 3 where the top left corner of the bounding box maps to (0,0). Additionally, add an alpha channel to each image</li>
+				<li>Feather the center image, decreasing its alpha values in relation to the pixel's distance from the center point of the image on the canvas (not necessarily the center of the canvas, as the image may not find itself in the exact middle of the canvas after step 3)</li>
+				<li>Create two mosaics, one with the warped left image and the feathered center image (Mosaic 1), and the other with the right image and the feathered center image (Mosaic 2).</li>
+				<li>To create the final mosaic. Combine the left half of Mosaic 1 with the right half of Mosaic 2.</li>
+			</ol>
+			<div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/eucalyptus1.jpg" alt="eucalyptus1" style="width:100%">
+					<figcaption></figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/eucalyptus2.jpg" alt="eucalyptus2" style="width:100%">
+					<figcaption></figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/eucalyptus3.jpg" alt="eucalyptus3" style="width:100%">
+					<figcaption></figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column4" style="text-align: center;">
+					<img src="./images/eucalyptus_mosaic.png" alt="eucalyptus_mosaic" style="width:100%">
+					<figcaption>Stitched mosaic</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/bench1.jpg" alt="bench1" style="width:100%">
+					<figcaption></figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/bench2.jpg" alt="bench2" style="width:100%">
+					<figcaption></figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/bench3.jpg" alt="bench3" style="width:100%">
+					<figcaption></figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column4" style="text-align: center;">
+					<img src="./images/bench_mosaic.png" alt="bench_mosaic" style="width:100%">
+					<figcaption>Stitched mosaic</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/wheeler1.jpg" alt="wheeler1" style="width:100%">
+					<figcaption></figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/wheeler2.jpg" alt="wheeler2" style="width:100%">
+					<figcaption></figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/wheeler3.jpg" alt="wheeler3" style="width:100%">
+					<figcaption></figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column4" style="text-align: center;">
+					<img src="./images/wheeler_mosaic.png" alt="wheeler_mosaic" style="width:100%">
+					<figcaption>Stitched mosaic</figcaption>
+				</div>
+			</div>
+
+			<p>As you can see, things worked out pretty well. The results are not perfect, however. There is a fair amount of ghosting in some of the high frequency areas of the image. This is especially visible in the foliage in the background of the bench image. I believe the main cause of this issue is my choice of correspondence points. When choosing correspondence points, the high amount of detail in some parts of the images made it really hard to choose a pixel-perfect correspondence for a given point. I ended up focusing most of the points around prominent elements with clear edges/corners. As a result, the homography is only able to warp those parts of the image super accurately. As we move to auto-stitching later on, this should not be an issue.</p>
+
 		</div>
 	</body>
 </html>
