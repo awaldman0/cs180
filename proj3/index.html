@@ -122,6 +122,7 @@
 				</div>
 			</div>
 			<h2>A.2: Recover Homographies</h2>
+			<p><b>To generate all relevant images for this section, run the following command: <code>python main.py a_2</code></b></p>
 			<p>In order to warp my images into alignment, I first needed to solve for the transformation matrix that allows us to map one perspective projection to another. This 3x3 matrix is called the homography. To solve for this matrix, you can set up a system of equations to map points from one image to another, using least squares estimation to derive the homography:</p>
 			<ol>
 				<li>Identify points <code>(x, y)</code> in the first image that correspond with points <code>(u, v)</code> in the second image. In the second part of the project, this part will be done automatically. For now, I used this <a href="https://cal-cs180.github.io/fa23/hw/proj3/tool.html">tool</a> to identify correspondences.</li>
@@ -159,6 +160,7 @@
 			<figcaption>Recovered homography</figcaption>
 
 			<h2>A.3: Warp the Images</h2>
+			<p><b>To generate all relevant images for this section, run the following command: <code>python main.py a_3</code></b></p>
 			<p>Now that we have the ability to recover homographies we can begin warping images onto one another. One common use case for homographies is image rectification, often used when taking pictures of important documents. I decided to demonstrate my ability to rectify images using a couple poster that I have hanging in my apartment. Using the pixel correspondence tool I mentioned earlier, I mapped the corners of each poster to the corners of the image so that the homography would result in a totally flat picture of the poster. Having a correct homography is only one part of the process, though. Since pixels in the input image are unlikely to align perfectly with pixels in the output image, we need some kind of interpolation technique to ensure the result doesn't have holes. I implemented two types of interpolation, nearest neighbor and bilinear. Given a pixel location in the output image, nearest neighbor assigns its value to the closest corresponding pixel from the input image while bilinear interpolation involves finding a weighted average of the four closest pixels in the input. Despite its relative slowness, I preferred using bilinear interpolation when producing images for this assignment.</p> 
 			<div class="row">
 				<div class="column2" style="text-align: center;">
@@ -200,6 +202,7 @@
 			</div>
 			<p>Rectification works! We can also see the difference between using nearest neighbor and bilinear interpolation on an image. Up close, images that used nearest neighbor definetly look more pixelated than those with bilinear interpolation. The averaging of values in bilinear interpolation allows for a much smoother output, but this comes at the cost of time. Bilinear interpolation involves many more mathethatical operations compared to the nearest neighbor approach, which simply rounds values to the nearest integer. </p>
 			<h2>A.4: Blend the Images into a Mosaic</h2>
+			<p><b>To generate all relevant images for this section, run the following command: <code>python main.py a_4</code></b></p>
 			<p>Finally, we can begin producing image mosaics! My process for creating image mosaics works as follows:</p>
 			<ol>
 				<li>Using manually selcted correspondences, compute the homography between the left image and the center image as well as the homography between the right image and the center image.</li>
@@ -271,9 +274,11 @@
 				</div>
 			</div>
 
-			<p>As you can see, things worked out pretty well. The results are not perfect, however. There is a fair amount of ghosting/blurriness in some of the high frequency areas of the image. This is especially visible in the leaves of the Eucalyptus trees in the second mosaic. I believe the main cause of this issue is my choice of correspondence points. When choosing correspondence points, the high amount of detail in some parts of the images made it really hard to find a pixel-perfect correspondence for a given point. I ended up focusing most of the points around prominent elements with clear edges/corners. As a result, the homography is only able to warp those parts of the image super accurately. As we move to auto-stitching later on, this should not be an issue.</p>
+			<p>As you can see, things worked out pretty well. The results are not perfect, however. There is a fair amount of ghosting/blurriness in some of the high frequency areas of the image. This is especially visible in the leaves of the Eucalyptus trees in the second mosaic. I believe the main cause of this issue is my choice of correspondence points. When choosing correspondence points, the high amount of detail in some parts of the images made it really hard to find a pixel-perfect correspondence for a given point. I ended up focusing most of the points around prominent elements with clear edges/corners. As a result, the homography is only able to warp those parts of the image super accurately. As we move to auto-stitching later on, this will hopefully not be an issue.</p>
 			
 			<h2>B.1: Harris Corner Detection</h2>
+			<p><b>To generate all relevant images for this section, run the following command: <code>python main.py b_1</code></b></p>
+			<p>The first step of stitching images automatically involves detecting prominent features or "corners" that we can use to find correspondences between images later on. I found these corners using a Harris detector, which essentially locates all points in an image where there is significant change in the x and y direction. Luckily, we were provided some sample code for single-scale harris detection, which I used to generate the image below:</p>
 			<div class="row">
 				<div class="column" style="text-align: center;">
 					<img src="./images/haviland2.jpg" alt="haviland" style="width:100%">
@@ -284,6 +289,7 @@
 					<figcaption>Detected corners</figcaption>
 				</div>
 			</div>
+			<p>As you can see, using Harris detection results in very large number of corners (1186 in this case). For the purposes of alignment, having this many corners/interest points is not necessary and will affect runtime significantly. One easy way to restrict the number of points I'm considering is to filter for the N strongest points in the image, where strength refers to the value of the corner response function R (calculated during the Harris detection process) at a particular point.</p>
 			<div class="row">
 				<div class="column" style="text-align: center;">
 					<img src="./images/top_250_corners.jpg" alt="top 250" style="width:100%">
@@ -294,6 +300,18 @@
 					<figcaption>Strongest 500 corners</figcaption>
 				</div>
 			</div>
+			<p>Unfortunately, filtering for the N strongest corners leaves us with a very uneven spatial distribution of interest points. If we continued from here without making the distribution more even, the least squares estimation used to calculate the homography would not include many points from sparsely populated areas like the stairs in the images above. The homography would not perform well when it comes to warping that part of the image, leading to significant ghosting/blurring. To avoid that, I implemented Adaptive Non-Maximal Suppression (ANMS) to find corners that are strong <b>and</b> distributed evenly throughout the image. My implementation works as follows:</p>
+			<ol>
+				<li>For each Harris corner <code>c_i</code>:
+					<ul>
+						<li>Find all other Harris corners <code>c_j</code> in the image such that <code>strength(c_i) < 0.9 * strength(c_j)</code></li>
+						<li>Calculate the distance from <code>c</code> to all other strong Harris corners and find the minimum</li>
+						<li>If there are no corners such that <code>strength(c_i) < 0.9 * strength(c_j)</code>, set <code>c_i</code>'s minimum distance to infinity</li>
+					</ul>
+				</li>
+				<li>Sort the Harris corners by their minimum distance to another strong corner in descending order</li>
+			</ol>
+			<p>Now, if we take the top 250 or top 500 Harris corners sorted by their minimum distance to another strong corner, we get evenly distributed interest points!</p>
 			<div class="row">
 				<div class="column" style="text-align: center;">
 					<img src="./images/anms_250.jpg" alt="anms 250" style="width:100%">
@@ -304,7 +322,23 @@
 					<figcaption>ANMS 500</figcaption>
 				</div>
 			</div>
-			<h2>B.2: Feature Descriptor Extraction</h2>			
+			<h2>B.2: Feature Descriptor Extraction</h2>		
+			<p><b>To generate all relevant images for this section, run the following command: <code>python main.py b_2</code></b></p>
+			<p>Now that we can find prominent, evenly distributed points in an image, we need to find a way to match those points to locations in another image. There's no way to guarantee that the Harris corners in one image match the Harris corners in another image, so we need to get creative. In order to match Harris corners across images, we need to create feature descriptors. A feature descriptor is an bias/gain normalized 8X8 pixel patch centered around an interest point that samples surrounding pixels at a low frequency. Normalizing helps us combat changes in light intensity bewteen images, while sampling at a lower frequency makes the descriptors a bit less sensitive to their exact location (which makes matching easier later on). My implementation of feature descriptors works as follows:</p>	
+			<ol>
+				<li>Read in the image as black and white and apply a Gaussian blur (I used a kernel size of 13 and &#963; = 2).</li>
+				<li>Find a set of evenly distributed Harris corners using ANMS.</li>
+				<li>For each corner <code>c</code>
+					<ul>
+						<li>Set <code>x</code> and <code>y</code> equal to the rounded x and y coordinates of <code>c</code>.</li>
+						<li>Find the 40x40 pixel window in the blurred balck and white image centered at <code>(x, y)</code>.</li>
+						<li>Sample the 40x40 window with a spacing of 5 pixels between each sample (resulting in a size of 8x8) and set that equal to <code>patch</code>.</li>
+						<li>Normalize <code>patch</code> by subtracting the mean and dividing by the standard deviation.</li>
+						<li>Flatten <code>patch</code> into a 1D vector and store for later use.</li>
+					</ul>
+				</li>
+			</ol>
+			<p>Using the image of Haviland Hall from part B.1, I applied these steps to create feature descriptors for the top 500 ANMS corners. Pictured below are a few examples of what the feature descriptors look like.</p>
 			<div class="row">
 				<div class="column2" style="text-align: center;">
 					<img src="./images/feature_descriptor_445_186.jpg" alt="descriptor (445, 186)" style="width:100%">
@@ -334,6 +368,8 @@
 				</div>
 			</div>
 			<h2>B.3: Feature Matching</h2>
+			<p><b>To generate all relevant images for this section, run the following command: <code>python main.py b_3</code></b></p>
+			<p>From here, we can begin finding matching feature descriptors bewteen images and identifying correspondences! The naive approach to finding matches between two images works like this. For every feature descriptor in image 1, loop through every feature descriptor in image 2. Calculate their L2 distance and match the feature descriptor from image 1 with the feature descriptor from image 2 that minimizes L2 distance. While you may end up finding some good matches, you'll also end up matching a lot of outliers with feature descriptors that don't really match but just happen to minimize L2 distance. A clever way to get around this is to use Lowe's trick. When finding the smallest L2 distance between two descriptors, you can also find the second-smallest L2 distance. Then, the ratio of the smallest L2 distance to the second smallest L2 distance will tell you how good the match is. When the ratio is small, that means you've found a good match since the pairing with the smallest distance is much better than the pairing with the second smallest distance. By only keeping the matches whose ratio is below a certain threshold <code>t</code>, you can eliminate almost all outliers! In my experience, I found <code>t=0.7</code> returned lots of good matches while getting rid of most of the outliers. Below, I've visualized the matched features for images of Haviland Hall and plotted the correspondences. You'll notice there are still a few mismatched features present, but those will not have an effect on the final image thanks to the RANSAC algorithm implemented in B.4</p>
 			<div class="row">
 				<div class="column3" style="text-align: center;">
 					<img src="./images/b3_anms_left.jpg" alt="anms left" style="width:100%">
@@ -383,12 +419,10 @@
 				</div>
 			</div>
 			<h2>B.4: RANSAC for Robust Homography</h2>
-			<div class="row">
-				<div class="column4" style="text-align: center;">
-					<img src="./images/haviland_autostitch.png" alt="haviland_autostitch" style="width:100%">
-					<figcaption>Autostitched images of Haviland Hall</figcaption>
-				</div>
-			</div>
+			<p><b>To generate all relevant images for this section, run the following command: <code>python main.py b_4</code></b></p>
+			<p>Now that we have our correspondences, all that's left is to solve for a homography that can map these matched features onto each other. As I mentioned at the end of the last section, however, we still have some outliers/mismatches to deal with. In order to whittle down my list of correspondences to a list of "good" correspondences, I implemented the RANSAC algorithm introduced in lecture.</p>
+			<img src="./images/ransac_loop.png" style="width:500px">
+			<p>For my autostitched images, I chose to use a &#949; value of 1.0 to ensure the set of inliers I found during an iteration of RANSAC were very accurate to ensure the final homography could warp things properly. With everything implemented, we can revisit the mosaic from part A, but this time we can use autostitching!</p>
 			<div class="row">
 				<div class="column4" style="text-align: center;">
 					<img src="./images/eucalyptus_mosaic.png" alt="eucalyptus_mosaic" style="width:100%">
