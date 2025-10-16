@@ -47,7 +47,7 @@
 				padding: 5px;
 			}
 			.column4 {
-				float: center;
+				float: left;
 				width: 100%;
 				padding: 5px;
 			}
@@ -271,16 +271,160 @@
 				</div>
 			</div>
 
-			<p>As you can see, things worked out pretty well. The results are not perfect, however. There is a fair amount of ghosting in some of the high frequency areas of the image. This is especially visible in the foliage in the background of the bench image. I believe the main cause of this issue is my choice of correspondence points. When choosing correspondence points, the high amount of detail in some parts of the images made it really hard to choose a pixel-perfect correspondence for a given point. I ended up focusing most of the points around prominent elements with clear edges/corners. As a result, the homography is only able to warp those parts of the image super accurately. As we move to auto-stitching later on, this should not be an issue.</p>
+			<p>As you can see, things worked out pretty well. The results are not perfect, however. There is a fair amount of ghosting/blurriness in some of the high frequency areas of the image. This is especially visible in the leaves of the Eucalyptus trees in the second mosaic. I believe the main cause of this issue is my choice of correspondence points. When choosing correspondence points, the high amount of detail in some parts of the images made it really hard to find a pixel-perfect correspondence for a given point. I ended up focusing most of the points around prominent elements with clear edges/corners. As a result, the homography is only able to warp those parts of the image super accurately. As we move to auto-stitching later on, this should not be an issue.</p>
 			
 			<h2>B.1: Harris Corner Detection</h2>
-
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/haviland2.jpg" alt="haviland" style="width:100%">
+					<figcaption>Original Photo</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/harris_detection.jpg" alt="harris pts" style="width:100%">
+					<figcaption>Detected corners</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/top_250_corners.jpg" alt="top 250" style="width:100%">
+					<figcaption>Strongest 250 corners</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/top_500_corners.jpg" alt="top 500" style="width:100%">
+					<figcaption>Strongest 500 corners</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/anms_250.jpg" alt="anms 250" style="width:100%">
+					<figcaption>ANMS 250</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/anms_500.jpg" alt="hanms 500" style="width:100%">
+					<figcaption>ANMS 500</figcaption>
+				</div>
+			</div>
 			<h2>B.2: Feature Descriptor Extraction</h2>			
-
+			<div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/feature_descriptor_445_186.jpg" alt="descriptor (445, 186)" style="width:100%">
+					<figcaption>Feature descriptor for corner at (445, 186)</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/feature_descriptor_466_185.jpg" alt="descriptor (466, 185)" style="width:100%">
+					<figcaption>Feature descriptor for corner at (466, 185)</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/feature_descriptor_46_615.jpg" alt="descriptor (46, 615)" style="width:100%">
+					<figcaption>Feature descriptor for corner at (46, 615)</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/feature_descriptor_612_212.jpg" alt="descriptor (612, 212)" style="width:100%">
+					<figcaption>Feature descriptor for corner at (612, 212)</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/feature_descriptor_72_553.jpg" alt="descriptor (72, 553)" style="width:100%">
+					<figcaption>Feature descriptor for corner at (72, 553)</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/feature_descriptor_962_126.jpg" alt="descriptor (962, 126)" style="width:100%">
+					<figcaption>Feature descriptor for corner at (962, 126)</figcaption>
+				</div>
+			</div>
 			<h2>B.3: Feature Matching</h2>
-
+			<div class="row">
+				<div class="column3" style="text-align: center;">
+					<img src="./images/b3_anms_left.jpg" alt="anms left" style="width:100%">
+					<figcaption>ANMS 500</figcaption>
+				</div>
+				<div class="column3" style="text-align: center;">
+					<img src="./images/b3_anms_center.jpg" alt="anms center" style="width:100%">
+					<figcaption>ANMS 500</figcaption>
+				</div>
+				<div class="column3" style="text-align: center;">
+					<img src="./images/b3_matching_left_center.jpg" alt="matching pts left" style="width:100%">
+					<figcaption>Matched features, t = 0.7</figcaption>
+				</div>
+				<div class="column3" style="text-align: center;">
+					<img src="./images/b3_matching_center_left.jpg" alt="macthing pts center" style="width:100%">
+					<figcaption>Matched features, t = 0.7</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column4" style="text-align: center;">
+					<img src="./images/b3_corresponding_left_center.jpg" alt="Corresponding points" style="width:100%">
+					<figcaption>Corresponding points</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column3" style="text-align: center;">
+					<img src="./images/b3_anms_right.jpg" alt="anms center" style="width:100%">
+					<figcaption>ANMS 500</figcaption>
+				</div>
+				<div class="column3" style="text-align: center;">
+					<img src="./images/b3_anms_center.jpg" alt="anms right" style="width:100%">
+					<figcaption>ANMS 500</figcaption>
+				</div>
+				<div class="column3" style="text-align: center;">
+					<img src="./images/b3_matching_right_center.jpg" alt="matching pts center" style="width:100%">
+					<figcaption>Matched features, t = 0.7</figcaption>
+				</div>
+				<div class="column3" style="text-align: center;">
+					<img src="./images/b3_matching_center_right.jpg" alt="matching pts right" style="width:100%">
+					<figcaption>Matched features, t = 0.7</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column4" style="text-align: center;">
+					<img src="./images/b3_corresponding_right_center.jpg" alt="Corresponding points" style="width:100%">
+					<figcaption>Corresponding points</figcaption>
+				</div>
+			</div>
 			<h2>B.4: RANSAC for Robust Homography</h2>
-
+			<div class="row">
+				<div class="column4" style="text-align: center;">
+					<img src="./images/haviland_autostitch.png" alt="haviland_autostitch" style="width:100%">
+					<figcaption>Autostitched images of Haviland Hall</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column4" style="text-align: center;">
+					<img src="./images/eucalyptus_mosaic.png" alt="eucalyptus_mosaic" style="width:100%">
+					<figcaption>Manually stitched images of the Eucalyptus grove</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column4" style="text-align: center;">
+					<img src="./images/eucalyptus_autostitch.png" alt="eucalyptus_autostitch" style="width:100%">
+					<figcaption>Autostitched images of the Eucalyptus grove</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column4" style="text-align: center;">
+					<img src="./images/bench_mosaic.png" alt="bench_mosaic" style="width:100%">
+					<figcaption>Manually stitched images of a bench</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column4" style="text-align: center;">
+					<img src="./images/bench_autostitch.png" alt="haviland_autostitch" style="width:100%">
+					<figcaption>Autostitched images of a bench</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column4" style="text-align: center;">
+					<img src="./images/wheeler_mosaic.png" alt="wheeler_mosaic" style="width:100%">
+					<figcaption>Manually stitched images of Wheeler Hall</figcaption>
+				</div>
+			</div>			
+			<div class="row">
+				<div class="column4" style="text-align: center;">
+					<img src="./images/wheeler_autostitch.png" alt="wheeler_autostitch" style="width:100%">
+					<figcaption>Autostitched images of Haviland Hall</figcaption>
+				</div>
+			</div>
 		</div>
 	</body>
 </html>
