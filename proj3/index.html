@@ -122,7 +122,7 @@
 				</div>
 			</div>
 			<h2>A.2: Recover Homographies</h2>
-			<p><b>To generate all relevant images for this section, run the following command: <code>python main.py a_2</code></b></p>
+			<p><b>To execute the code for this section, run the following command: <code>python main.py a_2</code></b></p>
 			<p>In order to warp my images into alignment, I first needed to solve for the transformation matrix that allows us to map one perspective projection to another. This 3x3 matrix is called the homography. To solve for this matrix, you can set up a system of equations to map points from one image to another, using least squares estimation to derive the homography:</p>
 			<ol>
 				<li>Identify points <code>(x, y)</code> in the first image that correspond with points <code>(u, v)</code> in the second image. In the second part of the project, this part will be done automatically. For now, I used this <a href="https://cal-cs180.github.io/fa23/hw/proj3/tool.html">tool</a> to identify correspondences.</li>
