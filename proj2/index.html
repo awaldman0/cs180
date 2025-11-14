@@ -1,4 +1,86 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project 1: Colorizing the Prokudin-Gorskii Photo Collection</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+body {
+  background-color: #f8f8f8;
+  font-family: 'Inter', sans-serif;
+  color: #222;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 20px;
+  background-color: white;
+  box-shadow: 0 0 15px rgba(0,0,0,0.05);
+  border-radius: 12px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+h2 {
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 8px;
+  margin-top: 40px;
+}
+
+img {
+  max-width: 90%;
+  height: auto;
+  border-radius: 6px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: zoom-in;
+}
+
+img:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+figure {
+  text-align: center;
+  margin: 20px 0;
+}
+
+figcaption {
+  font-size: 0.9em;
+  color: #666;
+  margin-top: 6px;
+}
+
+/* Lightbox overlay */
+.lightbox {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.8);
+  justify-content: center;
+  align-items: center;
+}
+
+.lightbox img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 8px;
+  cursor: zoom-out;
+}
+
+.lightbox.active {
+  display: flex;
+}
+</style>
 	<head>
 		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
 		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
@@ -546,3 +628,19 @@ def two_for_loops(img, kernel):
 			</div>
 	</body>
 </html>
+
+<div class="lightbox">
+    <img src="" alt="Expanded view">  </div>
+<script>
+document.querySelectorAll('img').forEach(img => {
+  img.addEventListener('click', e => {
+    const lb = document.querySelector('.lightbox');
+    lb.querySelector('img').src = img.src;
+    lb.classList.add('active');
+  });
+});
+
+document.querySelector('.lightbox').addEventListener('click', () => {
+  document.querySelector('.lightbox').classList.remove('active');
+});
+</script>
