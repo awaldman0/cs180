@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project 4: Neural Radiance Fields</title>
+  <title>Project 5: Fun With Diffusion</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
 body {
@@ -71,8 +71,8 @@ figcaption {
 }
 
 .lightbox img {
-  max-width: 90%;
-  max-height: 90%;
+  max-width: 100%;
+  max-height: 100%;
   border-radius: 8px;
   cursor: zoom-out;
 }
@@ -116,6 +116,16 @@ figcaption {
 				width: 33.33%;
 				padding: 5px;
 			}
+      .column3 {
+				float: left;
+				width: 25%;
+				padding: 5px;
+			}
+      .column4 {
+				float: left;
+				width: 100%;
+				padding: 5px;        
+      }
 			.row::after {
 			content: "";
 			clear: both;
@@ -132,13 +142,126 @@ figcaption {
 
       <h1>Part A: The Power of Diffusion Models!</h1>
 
+      <h2>Part 0: Play with the Model using Your Own Text Prompts!</h2>
+
+      <p>seed value = 123</p>
+      <div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/part0_1.png" alt="" style="width:100%">
+					<figcaption>an oil painting of people around a campfire</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/part0_2.png" alt="" style="width:100%">
+					<figcaption>an oil painting of an old man</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/part0_3.png" alt="" style="width:100%">
+					<figcaption>a photo of a hipster barista</figcaption>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/part0_4.png" alt="" style="width:100%">
+					<figcaption>num_inference_steps = 40</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/part0_5.png" alt="" style="width:100%">
+					<figcaption>num_inference_steps = 80</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/part0_6.png" alt="" style="width:100%">
+					<figcaption>num_inference_steps = 160</figcaption>
+				</div>
+			</div>
+
       <h2>Part 1: Sampling Loops</h2>
 
       <h2>1.1 Implementing the Forward Process</h2>
-
+      <div class="row">
+				<div class="column3" style="text-align: center;">
+					<img src="./images/part1_1_1.png" alt="" style="width:256px">
+					<figcaption>Original</figcaption>
+				</div>
+				<div class="column3" style="text-align: center;">
+					<img src="./images/part1_1_2.png" alt="" style="width:256px">
+					<figcaption>Noisy Campanile at t=250</figcaption>
+				</div>
+				<div class="column3" style="text-align: center;">
+					<img src="./images/part1_1_3.png" alt="" style="width:256px">
+					<figcaption>Noisy Campanile at t=500</figcaption>
+				</div>
+        <div class="column3" style="text-align: center;">
+					<img src="./images/part1_1_4.png" alt="" style="width:256px">
+					<figcaption>Noisy Campanile at t=750</figcaption>
+				</div>
+			</div>
+      
       <h2>1.2 Classical Denoising</h2>
+      <p>kernel size = 5</p>
 
+      <div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/part1_1_2.png" alt="" style="width:256px">
+					<figcaption>Noisy Campanile at t=250</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/part1_1_3.png" alt="" style="width:256px">
+					<figcaption>Noisy Campanile at t=500</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/part1_1_4.png" alt="" style="width:256px">
+					<figcaption>Noisy Campanile at t=750</figcaption>
+				</div>
+			</div>
+      <div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/part1_2_1.png" alt="" style="width:256px">
+					<figcaption>Gaussian Blur Denoising at t=250</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/part1_2_2.png" alt="" style="width:256px">
+					<figcaption>Gaussian Blur Denoising at t=500</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/part1_2_3.png" alt="" style="width:256px">
+					<figcaption>Gaussian Blur Denoising at t=750</figcaption>
+				</div>
+			</div>
       <h2>1.3 One-Step Denoising</h2>
+      <div class ="row">
+				<div class="column4" style="text-align: center;">
+					<img src="./images/part1_1_1.png" alt="" style="width:256px">
+					<figcaption>Original</figcaption>
+				</div>        
+      </div>
+      <div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/part1_1_2.png" alt="" style="width:256px">
+					<figcaption>Noisy Campanile at t=250</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/part1_1_3.png" alt="" style="width:256px">
+					<figcaption>Noisy Campanile at t=500</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/part1_1_4.png" alt="" style="width:256px">
+					<figcaption>Noisy Campanile at t=750</figcaption>
+				</div>
+			</div>
+            <div class="row">
+				<div class="column2" style="text-align: center;">
+					<img src="./images/part1_3_1.png" alt="" style="width:256px">
+					<figcaption>One-Step Denoised Campanile at t=250</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/part1_3_2.png" alt="" style="width:256px">
+					<figcaption>One-Step Denoised Campanile at t=500</figcaption>
+				</div>
+				<div class="column2" style="text-align: center;">
+					<img src="./images/part1_3_3.png" alt="" style="width:256px">
+					<figcaption>One-Step Denoised Campanile at t=750</figcaption>
+				</div>
+			</div>
 
       <h2>1.4 Iterative Denoising</h2>
 
