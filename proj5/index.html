@@ -116,16 +116,21 @@ figcaption {
 				width: 33.33%;
 				padding: 5px;
 			}
-      .column3 {
+      		.column3 {
 				float: left;
 				width: 25%;
 				padding: 5px;
 			}
-      .column4 {
+      		.column4 {
 				float: left;
 				width: 100%;
 				padding: 5px;        
-      }
+      		}
+      		.column5 {
+				float: left;
+				width: 20%;
+				padding: 5px;        
+      		}
 			.row::after {
 			content: "";
 			clear: both;
@@ -190,11 +195,11 @@ figcaption {
 					<img src="./images/part1_1_3.png" alt="" style="width:256px">
 					<figcaption>Noisy Campanile at t=500</figcaption>
 				</div>
-        <div class="column3" style="text-align: center;">
+        		<div class="column3" style="text-align: center;">
 					<img src="./images/part1_1_4.png" alt="" style="width:256px">
 					<figcaption>Noisy Campanile at t=750</figcaption>
 				</div>
-			</div>
+		</div>
       
       <h2>1.2 Classical Denoising</h2>
       <p>kernel size = 5</p>
@@ -264,9 +269,70 @@ figcaption {
 			</div>
 
       <h2>1.4 Iterative Denoising</h2>
+      <div class="row">
+			<div class="column5" style="text-align: center;">
+				<img src="./images/part1_4_5.png" alt="" style="width:256px">
+				<figcaption>Noisy Campanile at t=90</figcaption>
+			</div>
+			<div class="column5" style="text-align: center;">
+				<img src="./images/part1_4_4.png" alt="" style="width:256px">
+				<figcaption>Noisy Campanile at t=240</figcaption>
+			</div>
+			<div class="column5" style="text-align: center;">
+				<img src="./images/part1_4_3.png" alt="" style="width:256px">
+				<figcaption>Noisy Campanile at t=390</figcaption>
+			</div>
+			<div class="column5" style="text-align: center;">
+				<img src="./images/part1_4_2.png" alt="" style="width:256px">
+				<figcaption>Noisy Campanile at t=540</figcaption>
+			</div>
+							<div class="column5" style="text-align: center;">
+				<img src="./images/part1_4_1.png" alt="" style="width:256px">
+				<figcaption>Noisy Campanile at t=690</figcaption>
+			</div>
+		</div>
+		      <div class="row">
+				<div class="column3" style="text-align: center;">
+					<img src="./images/part1_1_1.png" alt="" style="width:256px">
+					<figcaption>Original</figcaption>
+				</div>
+				<div class="column3" style="text-align: center;">
+					<img src="./images/part1_4_6.png" alt="" style="width:256px">
+					<figcaption>Iteratively Denoised Campanile</figcaption>
+				</div>
+				<div class="column3" style="text-align: center;">
+					<img src="./images/part1_4_7.png" alt="" style="width:256px">
+					<figcaption>One-Step Denoised Campanile</figcaption>
+				</div>
+        		<div class="column3" style="text-align: center;">
+					<img src="./images/part1_4_8.png" alt="" style="width:256px">
+					<figcaption>Gaussian Blurred Campanile</figcaption>
+				</div>
+		</div>
 
       <h2>1.5 Diffusion Model Sampling</h2>
-
+      <div class="row">
+			<div class="column5" style="text-align: center;">
+				<img src="./images/part1_5_1.png" alt="" style="width:256px">
+				<figcaption>Sample 1</figcaption>
+			</div>
+			<div class="column5" style="text-align: center;">
+				<img src="./images/part1_5_2.png" alt="" style="width:256px">
+				<figcaption>Sample 2</figcaption>
+			</div>
+			<div class="column5" style="text-align: center;">
+				<img src="./images/part1_5_3.png" alt="" style="width:256px">
+				<figcaption>Sample 3</figcaption>
+			</div>
+			<div class="column5" style="text-align: center;">
+				<img src="./images/part1_5_4.png" alt="" style="width:256px">
+				<figcaption>Sample 4</figcaption>
+			</div>
+							<div class="column5" style="text-align: center;">
+				<img src="./images/part1_5_5.png" alt="" style="width:256px">
+				<figcaption>Sample 5</figcaption>
+			</div>
+		</div>
       <h2>1.6 Classifier-Free Guidance (CFG)</h2>
 
       <h2>1.7 Image-to-image Translation</h2>
