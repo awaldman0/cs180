@@ -154,7 +154,7 @@ figcaption {
 
       <h2>Part 0: Play with the Model using Your Own Text Prompts!</h2>
 
-      <p>seed value = 123</p>
+      <p>To begin this project, I wanted to see what kind of images the DeepFloyd IF diffusion model was capable of producing. Using the prompt embeddings provided in the starter code, I generated images with the embeddings that correspond to "an oil painting of people around a campfire", "an oil painting of an old man", and "a photo of a hipster barista". While they aren't the highest quality generated images I've ever seen, I'd say the resulting images fit the prompts very well! I also messed around with a few different values for the number of inference steps in each stage of the model. The first 3 images were generated with 20 inference steps in each stage. For the next 3 images, I re-ran the model with the prompt "an oil painting of people around a campfire" using 40, 80, and 160 inference steps respectively. It seems that taking more inference steps corresponds to more fine-grained details in the output image. I should note that all images for this section and following sections were created using a <b>seed value = 123</b></p>
       <div class="row">
 				<div class="column2" style="text-align: center;">
 					<img src="./images/part0_1.png" alt="" style="width:100%">
@@ -187,6 +187,15 @@ figcaption {
       <h2>Part 1: Sampling Loops</h2>
 
       <h2>1.1 Implementing the Forward Process</h2>
+	  <p>As mentioned in the spec, the forward process is a crucial part of the diffusion process where we iteratively add noise to a clean image. From there, the model can try to predict a denoised version of the image step-by-step until it arrives at a newly generated clean picture. The forward process can be represented as $$ x_t = \sqrt{\bar\alpha_t} x_0 + \sqrt{1 - \bar\alpha_t} \epsilon \quad \text{where}~ \epsilon \sim N(0, 1)
+		$$ where x<sub>0</sub> is our original image, x<sub>t</sub> is the noisy image, \( \bar\alpha_t \) is the noise coefficient corresponding to noise level <code>t</code>, and &epsilon is the noise itself. In order to create an image at a specified noise level <code>t</code>, I implemented <code>forward()</code>. The key lines of my implementation are the following:</p>
+<pre>
+  <code>
+    eps = torch.randn_like(im)
+    im_noisy = (torch.sqrt(alphas_cumprod[t]) * im) + (torch.sqrt(1 - alphas_cumprod[t]) * eps)
+  </code>
+</pre>
+	<p>With <code>forward()</code> working, I could produce images of the Campanile at noise level [250, 500, 750].</p>
       <div class="row">
 				<div class="column3" style="text-align: center;">
 					<img src="./images/part1_1_1.png" alt="" style="width:256px">
@@ -207,7 +216,7 @@ figcaption {
 		</div>
       
       <h2>1.2 Classical Denoising</h2>
-      <p>kernel size = 5</p>
+      <p>A common strategy for denoising images is to apply Gaussian blur in order to smooth out pixel variations. Unfortunately, simply blurring a noisy image is not enough to recover a clean image from a noisy one. Looking at the images below, you'll see that blurring the noisy images from section 1.1 (kernel size = 5) does not acheive good results.</p>
 
       <div class="row">
 				<div class="column2" style="text-align: center;">
@@ -238,6 +247,7 @@ figcaption {
 				</div>
 			</div>
       <h2>1.3 One-Step Denoising</h2>
+	  <p>Moving on from classical denoising, we can try to use a pretrained diffusion model to recover clean images from noisy ones. We are using a UNet that has been trained to recover the Gaussian noise from a noisy image. It was also trained with text conditioning, meaning we can provide a prompt embedding to inform the model what kind of images we want it to generate. For this section, I used the prompt embedding corresponding to "a high quality photo". After estimating the amount of noise in an image, we can plug it into the equation from section 1.1 as &epsilon; and solve for x<sub>0</sub>, treating the noisy image as x<sub>t</sub>. This gives us an estimate of what the original image looks like. Below, I've visualzied the original image, the Campanile at each noise level, and the estimate of the orginal image at each noise level. As we introduce more noise to the image, the result of one-step denoising gets further and further from the original.</p>
       <div class ="row">
 				<div class="column4" style="text-align: center;">
 					<img src="./images/part1_1_1.png" alt="" style="width:256px">
@@ -274,6 +284,25 @@ figcaption {
 			</div>
 
       <h2>1.4 Iterative Denoising</h2>
+	  <p>Instead of trying to denoise an image in a single step, it makes more sense to denoise an image iteratively, as that's what diffusion models are trained to do. We can do this by iterating over a list of monotonically decreasing noise levels, denoising between each level until we reach the final, clean image. I created a list of strided noise levels <code>strided_timestamps</code> that begins at 990 and takes steps of 30 until we reach 0. As described in the spec:</p>
+	  <p>On the <code>i</code>th denoising step we are at <code>t = strided_timesteps[i]</code>, and want to get to <code>t = strided_timesteps[i+1]</code> (from more noisy to less noisy). To actually do this, we have the following formula:
+
+$$ x_{t'} = \frac{\sqrt{\bar\alpha_{t'}}\beta_t}{1 - \bar\alpha_t} x_0 + \frac{\sqrt{\alpha_t}(1 - \bar\alpha_{t'})}{1 - \bar\alpha_t} x_t + v_\sigma $$
+
+where x<sub>t</sub> is your image at timestep <code>t</code>, x<sub>t'</sub> is your noisy image at timestep <code>t'</code>, \( \bar\alpha_t \) is the noise coefficient, \( \alpha_t = \bar\alpha_t / \bar\alpha_{t'} \), \( \beta_t = 1 - \alpha_t \), \( x_0 \) is our current estimate of the clean image, and \( v_\sigma \) is the predicted noise provided by <code>add_variance()</code> </p>
+		<p> I implemented this functionality by filling in the <code>iterative_denoise</code> function, which loops over each timestep/noise level in <code>strided_timestamps</code>, gradually denoising the image until it reaches level 0. The key piece of code from this function is my implementation of the equation above, which looks like:</p>
+<pre>
+  <code>
+x_0 = (image - (noise_est * torch.sqrt(1 - alpha_cumprod))) / torch.sqrt(alpha_cumprod)
+t1 = ((torch.sqrt(alpha_cumprod_prev) * beta) / (1 - alpha_cumprod)) * x_0
+t2 = ((torch.sqrt(alpha) * (1 - alpha_cumprod_prev)) / (1 - alpha_cumprod)) * image
+v_sigma = add_variance(predicted_variance, prev_t, image) - image
+pred_prev_image = t1 + t2 + v_sigma
+image = pred_prev_image
+  </code>
+</pre>
+
+<p>With <code>iterative_denoise</code> implemented, I could gradually denoise a very noisy image of the Campanile and compare it to the output of our previous denoising methods. As you can see, iterative denoising resulted in a sharper, more detailed output than the other methods.</p>
       <div class="row">
 			<div class="column5" style="text-align: center;">
 				<img src="./images/part1_4_5.png" alt="" style="width:256px">
@@ -316,6 +345,7 @@ figcaption {
 		</div>
 
       <h2>1.5 Diffusion Model Sampling</h2>
+	  <p>Now that iterative denoising works, we can try to generate images from scratch by feeding the model pure noise instead of a noisy version of the Campanile. I'm also still using the embedding for "a high quality photo" as a prompt for the model. Shown below are a few samples of the model's output under these conditions.</p>
       <div class="row">
 			<div class="column5" style="text-align: center;">
 				<img src="./images/part1_5_1.png" alt="" style="width:256px">
@@ -339,7 +369,18 @@ figcaption {
 			</div>
 		</div>
       <h2>1.6 Classifier-Free Guidance (CFG)</h2>
-		<div class="row">
+	  <p>While the generated images from section 1.5 are pretty cool, they're not exceptionally high quality. The samples from above are some of the <b>best</b> examples of the model generating images from scratch. After running the model a few times, it was not uncommon for it to generate images with completely indistinguishable features. One way to improve the model's performance is to integrate classifier free guidance (CFG). In CFG, the noise estimate we use to denoise is conditioned on a text prompt as well as an unconditional noise estimate. Then, the overall noise estimate used to denoise the current best estimate of the clean image is</p>
+	  $$\epsilon = \epsilon_u + \gamma (\epsilon_c - \epsilon_u)$$
+	  <p>When &gamma; is greater than 1, we get <b>much</b> better results from our model. Implementing CFG did not require too many changes from the code I wrote for section 1.4. The main difference is that I had to run the model twice to get the conditional noise estimate corresponding to "a high quality photo" and the unconditional noise estimate corresponding to the null prompt "". From there, I could calculate the CFG noise using the equation above and use it to denoise the image. </p>
+<pre>
+  <code>
+cfg_noise = uncond_noise_est + scale * (noise_est - uncond_noise_est)
+x_0 = (image - (cfg_noise * torch.sqrt(1 - alpha_cumprod))) / torch.sqrt(alpha_cumprod)
+...
+  </code>
+</pre>	
+<p>As you can see, the model is now able to produce much more impressive images!</p>
+	  <div class="row">
 			<div class="column5" style="text-align: center;">
 				<img src="./images/part1_6_1.png" alt="" style="width:256px">
 				<figcaption>Sample 1 with CFG</figcaption>
@@ -362,6 +403,7 @@ figcaption {
 			</div>
 		</div>
       <h2>1.7 Image-to-image Translation</h2>
+	  <p>We can now examine how different our resulting images our depending on the amount of noise we add to the original image. In theory, when we add more noise to the original, the generated image should be further from the ground truth and vice versa. To do this, we can add noise to our input images and then run <code>iterative_denoise_cfg</code> starting at different timestamps. When <code>i_start</code> is larger, we are starting at a lower <code>t</code> value (less noise), meaning the result should be a bit closer to the original. To test this, I ran <code>iterative_denoise_cfg</code> at noise levels [1, 3, 5, 7, 10, 20] with the conditional text prompt "a high quality photo" on the Campanile, the apple from project 2, and the emir from project 1. We can see that the images gradually look more like the original, especially starting around level 7 or 10.</p>
 		<div class="row">
 				<div class="column6" style="text-align: center;">
 					<img src="./images/part1_7_1.png" alt="" style="width:256px">
@@ -388,11 +430,72 @@ figcaption {
 					<figcaption>SDEdit with i_start=20</figcaption>
 				</div>
 				<div class="column6" style="text-align: center;">
-					<img src="./images/part1_1_1.png" alt="" style="width:256px">
-					<figcaption>Campanile</figcaption>
+					<img src="./images/part1_7_7.png" alt="" style="width:256px">
+					<figcaption>Apple</figcaption>
+				</div>
+			</div>
+				<div class="row">
+				<div class="column6" style="text-align: center;">
+					<img src="./images/part1_7_8.png" alt="" style="width:256px">
+					<figcaption>SDEdit with i_start=1</figcaption>
+				</div>
+				<div class="column6" style="text-align: center;">
+					<img src="./images/part1_7_9.png" alt="" style="width:256px">
+					<figcaption>SDEdit with i_start=3</figcaption>
+				</div>
+				<div class="column6" style="text-align: center;">
+					<img src="./images/part1_7_10.png" alt="" style="width:256px">
+					<figcaption>SDEdit with i_start=5</figcaption>
+				</div>
+        		<div class="column6" style="text-align: center;">
+					<img src="./images/part1_7_11.png" alt="" style="width:256px">
+					<figcaption>SDEdit with i_start=7</figcaption>
+				</div>
+				<div class="column6" style="text-align: center;">
+					<img src="./images/part1_7_12.png" alt="" style="width:256px">
+					<figcaption>SDEdit with i_start=10</figcaption>
+				</div>
+				<div class="column6" style="text-align: center;">
+					<img src="./images/part1_7_13.png" alt="" style="width:256px">
+					<figcaption>SDEdit with i_start=20</figcaption>
+				</div>
+				<div class="column6" style="text-align: center;">
+					<img src="./images/part1_7_14.png" alt="" style="width:256px">
+					<figcaption>Apple</figcaption>
+				</div>
+			</div>
+				<div class="row">
+				<div class="column6" style="text-align: center;">
+					<img src="./images/part1_7_15.png" alt="" style="width:256px">
+					<figcaption>SDEdit with i_start=1</figcaption>
+				</div>
+				<div class="column6" style="text-align: center;">
+					<img src="./images/part1_7_16.png" alt="" style="width:256px">
+					<figcaption>SDEdit with i_start=3</figcaption>
+				</div>
+				<div class="column6" style="text-align: center;">
+					<img src="./images/part1_7_17.png" alt="" style="width:256px">
+					<figcaption>SDEdit with i_start=5</figcaption>
+				</div>
+        		<div class="column6" style="text-align: center;">
+					<img src="./images/part1_7_18.png" alt="" style="width:256px">
+					<figcaption>SDEdit with i_start=7</figcaption>
+				</div>
+				<div class="column6" style="text-align: center;">
+					<img src="./images/part1_7_19.png" alt="" style="width:256px">
+					<figcaption>SDEdit with i_start=10</figcaption>
+				</div>
+				<div class="column6" style="text-align: center;">
+					<img src="./images/part1_7_20.png" alt="" style="width:256px">
+					<figcaption>SDEdit with i_start=20</figcaption>
+				</div>
+				<div class="column6" style="text-align: center;">
+					<img src="./images/part1_7_21.png" alt="" style="width:256px">
+					<figcaption>Emir of Bukhara</figcaption>
 				</div>
 			</div>
       <h3>1.7.1 Editing Hand-Drawn and Web Images</h3>
+	  <p>Continuing our exploration of image-to-image translation, we can try to use hand-drawn inputs to see how they're projected onto the natural image manifold. For this section, I made 2 sketches and found an image from the web. As you can see, the model seems to do a bit better at predicting my sketches than the pizza when <code>i_start</code> is smaller (probably due to the simplicity of the sketches). </p>
 		<div class="row">
 				<div class="column6" style="text-align: center;">
 					<img src="./images/part1_71_1.png" alt="" style="width:256px">
@@ -484,35 +587,69 @@ figcaption {
 				</div>
 		</div>
       <h3>1.7.2 Inpainting</h3>
+	  <p>Next, we can try to have the model do some inpainting! To do this, we can create a mask that isolates the area of the image we want to change. From there, after every diffusion step, we set all of the pixels where the mask is 0 equal to pixels from the original photo. For this task, I essentially copied and pasted my implementation for <code>iterative_denoise_cfg</code> being this line of code</p>
+<pre>
+  <code>
+    image = (image * mask) + ((1-mask) * forward(original_image, prev_t).half().to(device))
+  </code>
+</pre>		  
+<p>which sets masked out pixels equal to corresponding pixels from the original image at the end of each diffusion step. Below, I have some examples of inpainting with pictures of the Campanile, Steph Curry, and Klay Thompson.</p>
 		<div class="row">
-			<div class="column2" style="text-align: center;">
-				<img src="./images/part1_72_3.png" alt="" style="width:256px">
+			<div class="column3" style="text-align: center;">
+				<img src="./images/part1_72_1.png" alt="" style="width:256px">
 				<figcaption>Campanile</figcaption>
 			</div>
-			<div class="column2" style="text-align: center;">
-				<img src="./images/part1_72_4.png" alt="" style="width:256px">
+			<div class="column3" style="text-align: center;">
+				<img src="./images/part1_72_2.png" alt="" style="width:256px">
 				<figcaption>Mask</figcaption>
 			</div>
-			<div class="column2" style="text-align: center;">
-				<img src="./images/part1_72_5.png" alt="" style="width:256px">
+			<div class="column3" style="text-align: center;">
+				<img src="./images/part1_72_3.png" alt="" style="width:256px">
 				<figcaption>Hole to Fill</figcaption>
+			</div>
+			<div class="column3" style="text-align: center;">
+				<img src="./images/part1_72_4.png" alt="" style="width:256px">
+				<figcaption>Campanile Inpainted</figcaption>
 			</div>
 		</div>
 				<div class="row">
-			<div class="column2" style="text-align: center;">
+			<div class="column3" style="text-align: center;">
+				<img src="./images/part1_72_5.png" alt="" style="width:256px">
+				<figcaption>Campanile</figcaption>
+			</div>
+			<div class="column3" style="text-align: center;">
 				<img src="./images/part1_72_6.png" alt="" style="width:256px">
-				<figcaption>Campanile Inpainted (nice result)</figcaption>
+				<figcaption>Mask</figcaption>
 			</div>
-			<div class="column2" style="text-align: center;">
-				<img src="./images/part1_72_1.png" alt="" style="width:256px">
-				<figcaption>Campanile Inpainted (interesting result)</figcaption>
+			<div class="column3" style="text-align: center;">
+				<img src="./images/part1_72_7.png" alt="" style="width:256px">
+				<figcaption>Hole to Fill</figcaption>
 			</div>
-			<div class="column2" style="text-align: center;">
-				<img src="./images/part1_72_2.png" alt="" style="width:256px">
-				<figcaption>Campanile Inpainted (interesting result)</figcaption>
+			<div class="column3" style="text-align: center;">
+				<img src="./images/part1_72_8.png" alt="" style="width:256px">
+				<figcaption>Steph Curry Inpainted</figcaption>
+			</div>
+		</div>
+				<div class="row">
+			<div class="column3" style="text-align: center;">
+				<img src="./images/part1_72_9.png" alt="" style="width:256px">
+				<figcaption>Campanile</figcaption>
+			</div>
+			<div class="column3" style="text-align: center;">
+				<img src="./images/part1_72_10.png" alt="" style="width:256px">
+				<figcaption>Mask</figcaption>
+			</div>
+			<div class="column3" style="text-align: center;">
+				<img src="./images/part1_72_11.png" alt="" style="width:256px">
+				<figcaption>Hole to Fill</figcaption>
+			</div>
+			<div class="column3" style="text-align: center;">
+				<img src="./images/part1_72_12.png" alt="" style="width:256px">
+				<figcaption>Klay Thompson Inpainted</figcaption>
 			</div>
 		</div>
       <h3>1.7.3 Text-Conditional Image-to-image Translation</h3>
+	  <p>In this task, I wanted to see how the model would react if I changed the text prompt from "a high quality photo" to something that gives me a but more control over the output. For the following series of images, I used the prompt embedding corresponding to "a pencil" to guide the diffusion process. As you can see, the output images gradually look more like the original but still retain characteristics from the text prompt. </p>
 		<div class="row">
 				<div class="column6" style="text-align: center;">
 					<img src="./images/part1_73_1.png" alt="" style="width:256px">
@@ -604,7 +741,27 @@ figcaption {
 				</div>
 		</div>
       <h2>1.8 Visual Anagrams</h2>
-      <div class="row">
+	  <p>Now, I wanted to try and create visual anagrams. The key behind doing this is to first pass 2 different prompts to the model. Each diffusion step, find the conditional and unconditional noise estimates for the first prompt. Then, flip the image and find the noise estimates using the other prompt. From there, you can apply an average noise estimate to x<sub>t</sub>, allowing both prompts to show up in the final image. The formula for finding the average noise estimate is as follows:</p>
+	  $$ \epsilon_1 = \text{CFG of UNet}(x_t, t, p_1) $$
+$$ \epsilon_2 = \text{flip}(\text{CFG of UNet}(\text{flip}(x_t), t, p_2))$$
+$$ \epsilon = (\epsilon_1 + \epsilon_2) / 2 $$
+<p>In code, I implemented the formula like this. I'll note that I also decided to used the average of the predicted variance for the normal and flipped version since that seemed like a reasonable approach.</p>
+<pre>
+  <code>
+eps_1 = uncond_noise_est + scale * (noise_est - uncond_noise_est)
+eps_2 = torch.flip(uncond_noise_est_flipped + scale * (noise_est_flipped - uncond_noise_est_flipped), dims=[2])
+eps = (eps_1 + eps_2) / 2
+predicted_variance_avg = (predicted_variance + torch.flip(predicted_variance_flipped, dims=[2])) / 2
+x_0 = (image - (eps * torch.sqrt(1 - alpha_cumprod))) / torch.sqrt(alpha_cumprod)
+t1 = ((torch.sqrt(alpha_cumprod_prev) * beta) / (1 - alpha_cumprod)) * x_0
+t2 = ((torch.sqrt(alpha) * (1 - alpha_cumprod_prev)) / (1 - alpha_cumprod)) * image
+v_sigma = add_variance(predicted_variance_avg, prev_t, image) - image
+pred_prev_image = t1 + t2 + v_sigma
+image = pred_prev_image
+</code>
+</pre>	
+<p>With <code>make_flip_illusion</code> working, I was able to produce these visual illusions!</p>
+<div class="row">
 				<div class="column
 				" style="text-align: center;">
 					<img src="./images/part1_8_1.png" alt="" style="width:256px">
@@ -626,7 +783,34 @@ figcaption {
 				</div>
 		</div>
       <h2>1.9 Hybrid Images</h2>
+	  <p>The last task was to create hybrid images that look like one thing from close up but another from far away. The process for doing this is not that different than the process for making visual anagrams. The algorithm for finding the combined noise estimate of two prompts in a hybrid image is</p>
+$$ \epsilon_1 = \text{CFG of UNet}(x_t, t, p_1) $$
 
+$$ \epsilon_2 = \text{CFG of UNet}(x_t, t, p_2) $$
+
+$$ \epsilon = f_\text{lowpass}(\epsilon_1) + f_\text{highpass}(\epsilon_2)$$	
+<p>In my implementation of <code>make_hybrid</code>, I found the CFG noise for the image for both prompts. I applied a low pass filter to the first noise estimate by blurring it. Then, I applied a high pass filter to the second noise estimate by subtracting a blurred version of the noise from itself. Lastly, I added them together to get the combined noise. I did the same to combine the predicted variance as well. In code, it looks like this:</p>
+<pre>
+  <code>
+eps_1 = uncond_noise_est + scale * (noise_est_low - uncond_noise_est)
+eps_2 = uncond_noise_est + scale * (noise_est_high - uncond_noise_est)
+eps = TF.gaussian_blur(eps_1, kernel_size=33, sigma=2) + (eps_2 - TF.gaussian_blur(eps_2, kernel_size=33, sigma=2))
+predicted_variance = TF.gaussian_blur(predicted_variance_low, kernel_size=33, sigma=2) 
++ (predicted_variance_high - TF.gaussian_blur(predicted_variance_high, kernel_size=33, sigma=2))
+...
+</code>
+</pre>
+<p>Now we have hybrid images! The first image appears to depict a waterfall, but if you move far away, you'll see a skull. Similarly, the second image looks like a double-sided pencil, but if you move away, you'll see a rocket blasting off!  </p>	
+	  <div class="row">
+				<div class="column" style="text-align: center;">
+					<img src="./images/part1_9_1.png" alt="" style="width:256px">
+					<figcaption>Hybrid image of a skull and a waterfall</figcaption>
+				</div>
+				<div class="column" style="text-align: center;">
+					<img src="./images/part1_9_2.png" alt="" style="width:256px">
+					<figcaption>Hybrid image of a rocket ship and a pencil</figcaption>
+				</div>
+		</div>
 	</body>
 </html>
 
