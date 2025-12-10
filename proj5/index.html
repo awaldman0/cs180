@@ -811,6 +811,64 @@ predicted_variance = TF.gaussian_blur(predicted_variance_low, kernel_size=33, si
 					<figcaption>Hybrid image of a rocket ship and a pencil</figcaption>
 				</div>
 		</div>
+	<h1>Part B: Flow Matching From Scratch!</h1>
+
+	<h2>Part 1: Training a Single-Step Denoising UNet</h2>
+
+	<h2>1.1 Implementing the UNet</h2>
+
+	<h2>1.2 Using the UNet to Train a Denoiser</h2>
+		<div class="row">
+			<div class="column6" style="text-align: center;">
+				<img src="./images/part2_12_1.png" alt="" style="width:256px">
+				<figcaption>&sigma; = 0.0</figcaption>
+			</div>
+			<div class="column6" style="text-align: center;">
+				<img src="./images/part2_12_2.png" alt="" style="width:256px">
+				<figcaption>&sigma; = 0.2</figcaption>
+			</div>
+			<div class="column6" style="text-align: center;">
+				<img src="./images/part2_12_3.png" alt="" style="width:256px">
+				<figcaption>&sigma; = 0.4</figcaption>
+			</div>
+			<div class="column6" style="text-align: center;">
+				<img src="./images/part2_12_4.png" alt="" style="width:256px">
+				<figcaption>&sigma; = 0.5</figcaption>
+			</div>
+			<div class="column6" style="text-align: center;">
+				<img src="./images/part2_12_5.png" alt="" style="width:256px">
+				<figcaption>&sigma; = 0.6</figcaption>
+			</div>
+			<div class="column6" style="text-align: center;">
+				<img src="./images/part2_12_6.png" alt="" style="width:256px">
+				<figcaption>&sigma; = 0.8</figcaption>
+			</div>
+			<div class="column6" style="text-align: center;">
+				<img src="./images/part2_12_7.png" alt="" style="width:256px">
+				<figcaption>&sigma; = 1.0</figcaption>
+			</div>
+		</div>	
+	<h3>1.2.1 Training</h3>
+
+	<h3>1.2.2 Out-of-Distribution Testing</h3>
+
+	<h3>1.2.3 Denoising Pure Noise</h3>
+
+
+	<h2>Part 2: Training a Flow Matching Model</h2>
+	
+	<h2>2.1 Adding Time Conditioning to UNet</h2>
+
+	<h2>2.2 Training the UNet</h2>
+
+	<h2>2.3 Sampling from the UNet</h2>
+
+	<h2>2.4 Adding Class-Conditioning to UNet</h2>
+
+	<h2>2.5 Training the UNet</h2>
+
+	<h2>2.6 Sampling from the UNet</h2>
+
 	</body>
 </html>
 
