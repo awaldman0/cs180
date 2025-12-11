@@ -136,6 +136,11 @@ figcaption {
 				width: 14.25%;
 				padding: 5px;        
       		}
+     		.column7 {
+				float: left;
+				width: 100%;
+				padding: 5px;        
+      		}
 			.row::after {
 			content: "";
 			clear: both;
@@ -397,7 +402,7 @@ x_0 = (image - (cfg_noise * torch.sqrt(1 - alpha_cumprod))) / torch.sqrt(alpha_c
 				<img src="./images/part1_6_4.png" alt="" style="width:256px">
 				<figcaption>Sample 4 with CFG</figcaption>
 			</div>
-							<div class="column5" style="text-align: center;">
+			<div class="column5" style="text-align: center;">
 				<img src="./images/part1_6_5.png" alt="" style="width:256px">
 				<figcaption>Sample 5 with CFG</figcaption>
 			</div>
@@ -816,7 +821,12 @@ predicted_variance = TF.gaussian_blur(predicted_variance_low, kernel_size=33, si
 	<h2>Part 1: Training a Single-Step Denoising UNet</h2>
 
 	<h2>1.1 Implementing the UNet</h2>
-
+	  	<div class="row">
+			<div class="column7" style="text-align: center;">
+				<img src="./images/part2_11_1.png" alt="" style="width:80%">
+				<figcaption>UNet Architecture</figcaption>
+			</div>
+		</div>
 	<h2>1.2 Using the UNet to Train a Denoiser</h2>
 		<div class="row">
 			<div class="column6" style="text-align: center;">
@@ -849,11 +859,85 @@ predicted_variance = TF.gaussian_blur(predicted_variance_low, kernel_size=33, si
 			</div>
 		</div>	
 	<h3>1.2.1 Training</h3>
-
+	  	<div class="row">
+			<div class="column7" style="text-align: center;">
+				<img src="./images/part2_121_1.png" alt="" style="width:80%">
+				<figcaption>Clean Images</figcaption>
+			</div>
+		</div>
+	  	<div class="row">
+			<div class="column7" style="text-align: center;">
+				<img src="./images/part2_121_2.png" alt="" style="width:80%">
+				<figcaption>Noisy Images (&sigma; = 0.5)</figcaption>
+			</div>
+		</div>
+	  	<div class="row">
+			<div class="column7" style="text-align: center;">
+				<img src="./images/part2_121_3.png" alt="" style="width:80%">
+				<figcaption>Denoised Images After 1 Epoch</figcaption>
+			</div>
+		</div>
+	  	<div class="row">
+			<div class="column7" style="text-align: center;">
+				<img src="./images/part2_121_4.png" alt="" style="width:80%">
+				<figcaption>Denoised Images After 5 Epochs</figcaption>
+			</div>
+		</div>
+	  	<div class="row">
+			<div class="column7" style="text-align: center;">
+				<img src="./images/part2_121_5.png" alt="" style="width:80%">
+			</div>
+		</div>
 	<h3>1.2.2 Out-of-Distribution Testing</h3>
-
+	  	<div class="row">
+			<div class="column7" style="text-align: center;">
+				<img src="./images/part2_122_1.png" alt="" style="width:80%">
+			</div>
+		</div>
+	  	<div class="row">
+			<div class="column7" style="text-align: center;">
+				<img src="./images/part2_122_2.png" alt="" style="width:80%">
+			</div>
+		</div>
+	  	<div class="row">
+			<div class="column7" style="text-align: center;">
+				<img src="./images/part2_122_3.png" alt="" style="width:80%">
+			</div>
+		</div>
+	  	<div class="row">
+			<div class="column7" style="text-align: center;">
+				<img src="./images/part2_122_4.png" alt="" style="width:80%">
+			</div>
+		</div>
+	  	<div class="row">
+			<div class="column7" style="text-align: center;">
+				<img src="./images/part2_122_5.png" alt="" style="width:80%">
+			</div>
+		</div>
 	<h3>1.2.3 Denoising Pure Noise</h3>
-
+	  	<div class="row">
+			<div class="column7" style="text-align: center;">
+				<img src="./images/part2_123_1.png" alt="" style="width:80%">
+				<figcaption>Pure Noise</figcaption>
+			</div>
+		</div>
+	  	<div class="row">
+			<div class="column7" style="text-align: center;">
+				<img src="./images/part2_123_2.png" alt="" style="width:80%">
+				<figcaption>Denoised Images After 1 Epoch</figcaption>
+			</div>
+		</div>
+	  	<div class="row">
+			<div class="column7" style="text-align: center;">
+				<img src="./images/part2_123_3.png" alt="" style="width:80%">
+				<figcaption>Denoised Images After 5 Epochs</figcaption>
+			</div>
+		</div>
+	  	<div class="row">
+			<div class="column7" style="text-align: center;">
+				<img src="./images/part2_123_4.png" alt="" style="width:80%">
+			</div>
+		</div>
 
 	<h2>Part 2: Training a Flow Matching Model</h2>
 	
